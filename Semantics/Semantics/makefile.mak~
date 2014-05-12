@@ -1,0 +1,26 @@
+PROJ_NODE_PATH := Template
+
+SUB_PROJECTS :=
+
+#-----------------------------------------------------
+#
+#  The part below is constant for all makefiles. Copy
+#  verbatim to each new makefile, and do not touch :-)
+#
+#-----------------------------------------------------
+
+PROJ_NODE := $(shell pwd )
+
+ifeq "" "$(PROJ_NODE_PATH)"
+  PROJ_ROOT := .
+else
+  ifeq "" "$(findstring /$(PROJ_NODE_PATH)*, $(PROJ_NODE)* )"
+    include Current_directory_does_not_appear_to_be_project_node!!! # disgusting way of generating error message
+	dummy  # disgusting way of stopping the make immediately
+  endif
+  PROJ_ROOT := $(subst /$(PROJ_NODE_PATH)*,,$(PROJ_NODE)*)
+endif
+
+include $(PROJ_ROOT)/rules.mak
+
+

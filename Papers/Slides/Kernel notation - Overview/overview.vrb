@@ -1,0 +1,18 @@
+\frametitle {\Kernel{} syntax by example}
+\footnotesize \mypause
+\verb+<type> nat <is> ['0, '1 nat ];       -- (recursive) variant type+\\[-0.06cm] \mypause
+\verb+<type> pair <is> {'x nat, 'y nat};   -- record type+\\[0.1cm]\mypause
+\verb+(pair -> pair) swap = (pair -> {'x $.y, 'y $.x});+ \\[0.1cm] \mypause
+\verb+({} -> nat) get_nat;                 -- FIFO+\\[0.1cm]\mypause
+\verb+({} -> pair) get_pair = {'x get_nat, 'y get_nat} <by> CONCAT; +\\[0.1cm] \mypause
+\verb+(pair -> nat) x-y = +\\[-0.06cm]
+\verb+   [ ({'x ..., 'y '0 } -> $.x), +\\[-0.06cm]
+\verb+     ({'x '1 ..., 'y ... } -> {'x $.x.1, 'y $.y.1}) :: x-y +\\[-0.06cm]
+\verb+   ] <by> FIRST_MATCH; + \\[0.1cm]\mypause
+\verb+(pair -> nat) y-x = swap :: x-y; +\\[0.1cm] \mypause
+\verb+({} -> nat) main = +\\[-0.06cm]
+\verb+ [ {'y get_nat, 'x '1 @y} :: x-y, +\\[-0.06cm]
+\verb+   get_nat, +\\[-0.06cm]
+\verb+   get_pair :: x-y  +\\[-0.06cm]
+\verb+   <longest> /* <shortest>, <unknown> */ get_nat +\\[-0.1cm]
+\verb+ ]; +

@@ -1,0 +1,43 @@
+\begin{picture}(0,0)%
+\includegraphics{nat.pdf}%
+\end{picture}%
+\setlength{\unitlength}{3947sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(3453,1086)(324,-295)
+\put(2062,223){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\{\}$}%
+}}}}
+\put(2630,-50){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\{\}$}%
+}}}}
+\put(3329,-237){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\{\}$}%
+}}}}
+\put(485,227){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\{\}$}%
+}}}}
+\put(2129,484){\makebox(0,0)[b]{\smash{{\SetFigFont{7}{8.4}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}'0}%
+}}}}
+\put(2784,526){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}'1}%
+}}}}
+\put(2697,199){\makebox(0,0)[b]{\smash{{\SetFigFont{7}{8.4}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}'0}%
+}}}}
+\put(3373,  3){\makebox(0,0)[b]{\smash{{\SetFigFont{7}{8.4}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}'0}%
+}}}}
+\put(3439,308){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}'1}%
+}}}}
+\put(3221,548){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}'1}%
+}}}}
+\put(3700,461){\makebox(0,0)[b]{\smash{{\SetFigFont{11}{13.2}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}...}%
+}}}}
+\put(1571,461){\makebox(0,0)[b]{\smash{{\SetFigFont{7}{8.4}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\Rightarrow$}%
+}}}}
+\put(542,484){\makebox(0,0)[b]{\smash{{\SetFigFont{7}{8.4}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}'0}%
+}}}}
+\put(892,570){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}'1}%
+}}}}
+\put(717,640){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}nat}%
+}}}}
+\end{picture}%

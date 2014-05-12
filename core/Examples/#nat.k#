@@ -1,0 +1,162 @@
+<type> bit <is> ['0, '1];
+<type> nat <is> ['_, '0 nat, '1 nat];
+<type> bool <is> ['true, 'false];
+
+/* few natural numbers in our encoding 
+
+nat zero = '_;
+nat one = '1'_;
+nat two = '1'0'_;
+nat three = '1'1'_;
+nat four = '1'0'0'_;
+nat five = '1'0'1'_;
+nat six  = '1'1'0'_;
+nat seven = '1'1'1'_;
+nat eight = '1'0'0'0'_;
+nat nine  = '1'0'0'1'_;
+nat ten   = '1'0'1'0'_;
+
+*/
+
+(nat -> nat) remove_leading_zeros = 
+      [ 
+        ('0 ... -> $.0 :: remove_leading_zeros),
+	(... -> $) 
+      ];
+
+(nat -> nat) sans_first_bit =  /* (... -> [$.0, $.1]); */
+     [
+       ('0 ... -> $.0),
+       ('1 ... -> $.1) ];
+
+(nat -> nat) append_zero =
+     [ 
+        ('_ -> '0'_),
+	('1 ... -> '1 [$.1 :: append_zero]),
+	('0 ... -> '0 [$.0 :: append_zero])
+     ];
+
+(nat -> nat) append_one =
+     [ 
+        ('_ -> '1'_),
+	('1 ... -> '1 [$.1 :: append_one]),
+	('0 ... -> '0 [$.0 :: append_one])
+     ];
+
+(nat -> nat) reverse_nat = 
+     [ 
+        ('_ -> '_),
+	('0 ... -> $.0 :: reverse_nat :: append_zero),
+	('1 ... -> $.1 :: reverse_nat :: append_one)
+     ];
+
+
+({'x nat, 'y nat, 'c bit} -> nat) add2wc =
+/* least significat bit first addition with carry */
+     [
+      ({'x '_, 'c '0, ...} -> $.y ),
+      ({'y '_, 'c '0, ...} -> $.x ),
+      ({'x '_, 'y '_, 'c '1, ...} -> '1'_ ),
+      ({'x '_, 'y '0 ..., 'c '1 } -> '1 $.y.0 ),
+      ({'y '_, 'x '0 ..., 'c '1 } -> '1 $.x.0 ),
+      ({'x '_, 'y '1 ..., 'c '1 } -> '0 [{'x '_, 'y $.y.1, 'c '1} :: add2wc]),
+      ({'y '_, 'x '1 ..., 'c '1 } -> '0 [{'x $.x.1, 'y '_, 'c '1} :: add2wc] ),
+      ({'x '0 ..., 'y '0 ..., 'c '0} -> 
+      	   '0 [{'x $.x.0, 'y $.y.0, 'c '0} :: add2wc]),
+      ({'x '0 ..., 'y '0 ..., 'c '1} -> 
+      	   '1 [{'x $.x.0, 'y $.y.0, 'c '0} :: add2wc]),
+      ({'x '0 ..., 'y '1 ..., 'c '0} -> 
+      	   '1 [{'x $.x.0, 'y $.y.1, 'c '0} :: add2wc]),
+      ({'x '0 ..., 'y '1 ..., 'c '1} -> 
+      	   '0 [{'x $.x.0, 'y $.y.1, 'c '1} :: add2wc]),
+      ({'x '1 ..., 'y '0 ..., 'c '0} -> 
+      	   '1 [{'x $.x.1, 'y $.y.0, 'c '0} :: add2wc]),
+      ({'x '1 ..., 'y '0 ..., 'c '1} -> 
+      	   '0 [{'x $.x.1, 'y $.y.0, 'c '1} :: add2wc]),
+      ({'x '1 ..., 'y '1 ..., 'c '0} -> 
+      	   '0 [{'x $.x.1, 'y $.y.1, 'c '1} :: add2wc]),
+      ({'x '1 ..., 'y '1 ..., 'c '1} -> 
+      	   '1 [{'x $.x.1, 'y $.y.1, 'c '1} :: add2wc]) 
+];
+
+
+({'x nat, 'y nat} -> nat) add =
+   (... -> 
+     {'x $.x :: remove_leading_zeros :: reverse_nat, 
+      'y $.y :: remove_leading_zeros :: reverse_nat, 
+      'c '0} 
+     :: add2wc 
+     :: reverse_nat );
+
+
+({'x nat, 'y nat, 'c bit} -> nat) sub2wc =
+/* least significat bit first substraction with carry */
+     [
+      ({'y '_, 'c '0, ... } -> $.x ),
+      ({'y '_, 'x '1 ..., 'c '1 } -> '0 $.x.1 ),
+      ({'y '_, 'x '0 ..., 'c '1 } -> 
+      	   '1 [{'x $.x.0, 'y '_, 'c '1} :: sub2wc] ),
+      ({'x '0 ..., 'y '0 ..., 'c '0} -> 
+      	   '0 [{'x $.x.0, 'y $.y.0, 'c '0} :: sub2wc]),
+      ({'x '0 ..., 'y '0 ..., 'c '1} -> 
+      	   '1 [{'x $.x.0, 'y $.y.0, 'c '1} :: sub2wc]),
+      ({'x '0 ..., 'y '1 ..., 'c '0} -> 
+      	   '1 [{'x $.x.0, 'y $.y.1, 'c '1} :: sub2wc]),
+      ({'x '0 ..., 'y '1 ..., 'c '1} -> 
+      	   '0 [{'x $.x.0, 'y $.y.1, 'c '0} :: sub2wc]),
+      ({'x '1 ..., 'y '0 ..., 'c '0} -> 
+      	   '1 [{'x $.x.1, 'y $.y.0, 'c '0} :: sub2wc]),
+      ({'x '1 ..., 'y '0 ..., 'c '1} -> 
+      	   '0 [{'x $.x.1, 'y $.y.0, 'c '0} :: sub2wc]),
+      ({'x '1 ..., 'y '1 ..., 'c '0} -> 
+      	   '0 [{'x $.x.1, 'y $.y.1, 'c '0} :: sub2wc]),
+      ({'x '1 ..., 'y '1 ..., 'c '1} -> 
+      	   '1 [{'x $.x.1, 'y $.y.1, 'c '1} :: sub2wc]) 
+];
+
+
+({'x nat, 'y nat} -> nat) sub =
+   (... -> 
+     {'x $.x :: remove_leading_zeros :: reverse_nat, 
+      'y $.y :: remove_leading_zeros :: reverse_nat, 
+      'c '0} 
+     :: sub2wc 
+     :: reverse_nat :: remove_leading_zeros);
+
+
+(nat -> nat) incr = (... -> {'x $, 'y '1'_} :: add);
+(nat -> nat) decr = (... -> {'x $, 'y '1'_} :: sub);
+
+
+(nat -> nat) zero_fiter = remove_leading_zeros :: ('_ -> '_);
+(nat -> nat) non_zero_fiter = remove_leading_zeros :: ('1 ... -> $);
+
+
+({'result nat, 'multipl nat, 'times nat} -> nat ) sm =
+/* This function "smart mult" calculates 
+   	result + (mulipl * (times:: reverse_nat))
+*/ 
+    [
+     ({'times '_, ...} -> $.result),
+     ({'times '0 ..., ...} -> {'result $.result, 
+     	      	      	       'multipl $.multipl :: append_zero,
+			       'times $.times.0} :: sm),
+     ({'times '1 ..., ...} -> {'result {'x $.result, 'y $.multipl} :: add,
+     	      	      	       'multipl $.multipl :: append_zero,
+			       'times $.times.1} :: sm)
+    ];
+
+({'x nat, 'y nat} -> nat) mult =
+  (... -> {'result '_, 
+           'multipl $.x :: remove_leading_zeros, 
+	   'times $.y :: remove_leading_zeros  :: reverse_nat} 
+	  :: sm );
+
+
+(nat -> nat) square = (... -> {'x $, 'y $}) :: mult;
+
+-- nat main = '1'1'1'1'0'0'1'1'1'0'0'1'_  :: square:: square:: square;
+
+{'x nat, 'square nat} main = {'x '1'1'1'0'0'1'_ , 'square @x :: square };
+
+

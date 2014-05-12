@@ -1,0 +1,68 @@
+% BIBTEX REFERENCE NAME OF THIS DOCUMENT: \cite{solidum-???}
+
+\documentclass[12pt]{article}
+\newif\ifpdf\ifx\pdfoutput\undefined\pdffalse\else\pdfoutput=1\pdftrue\fi
+\newcommand{\pdfgraphics}{\ifpdf\DeclareGraphicsExtensions{.pdf,.jpg}\else\DeclareGraphicsExtensions{.pstex,.eps,.ps,.pdf,.jpg}\fi}
+%%% A hack to produce the CVS revision string, e.g., `Revision 1.10'
+%%% DO NOT EDIT THE FOLLOWING LINE!
+\newcommand{\Revision}{$\makebox[0pt]{}$Revision: 1.7 $\makebox[-0.7ex]{}$} 
+
+%%% -------------- draftcopy ---------
+%%% OPTIONS:
+%%%    none | first | firsttwo | all
+%%%    bottom | bottomafter
+%%%    outline | light | dark  
+\usepackage[all,bottom,dark]{draftcopy}
+\draftcopyName{IDT Canada Inc. Confidential }{82}
+\draftcopySetGrey{0.92} %% 0.0=black, 1.0=white
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{fullpage}
+\usepackage{graphics}
+\usepackage{color}
+%\usepackage{times}
+
+\newcommand{\out}[1]{} 
+\newcommand{\status}[1]{} 
+\newcommand{\df}[1]{\stackrel{\mathtt{def}}{#1}}
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+
+\theoremstyle{remark}
+\newtheorem{conj}{Conjecture}
+\newtheorem{note}{Note}
+
+\theoremstyle{example}
+\newtheorem{ex}{Example}
+
+\status{ ...draft... }
+\title{ ...title... }
+
+\author{ ...authors... }
+\date{IDT Canada Inc. \\ 
+  Ottawa, Ontario, Canada \\[1em] 
+  \small\Revision}
+
+
+\begin{document}
+\pdfgraphics
+\maketitle
+
+\begin{abstract}
+  ...abstract...
+\end{abstract}
+
+\section{ ... }
+
+...
+
+\end{document}
+

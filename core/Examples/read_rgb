@@ -1,0 +1,3 @@
+'leaf;
+'rgb {'color 'red, 'left 'leaf, 'right 'leaf};
+'rgb {'color 'blue, 'left 'leaf, 'right 'leaf};

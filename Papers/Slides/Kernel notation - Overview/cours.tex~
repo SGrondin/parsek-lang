@@ -1,0 +1,494 @@
+\documentclass{beamer}
+\let\Tiny=\tiny
+\usetheme{split}
+\usepackage[frenchb]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{synttree}
+%\setbeamercovered{dynamic}
+
+\newcommand{\out}[1]{}
+\newcommand{\df}[1]{\stackrel{\mathtt{def}}{#1}}
+
+%\newcommand{\mypause}{\pause}
+\newcommand{\mypause}{}
+
+\newcommand{\fleche}[1]{\displaystyle \mathop {\mbox{\rightarrowfill}}^{#1} }
+\newcommand{\Kernel}{\textit{Kernel}}
+
+
+\title[INF4083: Kernel/CORE]{Langages de programmation (INF4083) \\
+  Langages fonctionnels: Kernel/CORE} 
+
+\author{Wojciech Fraczak}
+
+\date{15 mars 2011}
+
+\begin{document}
+\begin{frame}
+  \maketitle
+\end{frame}
+
+
+\section{Introduction}
+\subsection{Introduction}
+\begin{frame}
+  \frametitle{Introduction}
+  \begin{itemize}
+  \item \Kernel{} --- une notation pour la description de systèmes
+    informatiques --- \textcolor{blue}{mon projet de recherche!} \mypause
+  \item \Kernel{} est un langage de programmation qui peut être compilé
+    en code machine, et un langage de  spécification pour la
+    modélisation et la vérification. \mypause
+  \item Les traits uniques de \Kernel{} sont:
+    \begin{itemize}
+%    \item une syntaxe simple et uniforme; 
+    \item une sémantique en termes de \alert{\emph{relations}} (pas fonctions totales!);
+    \item \alert{\emph{composition}} à la place de l'\emph{application};
+    \item modèle (machine virtuelle) en  termes de \alert{systèmes FIFO};
+    \item pas de librairies prédéfinies et pas de ``built-in types''. 
+%    \item interchangeable nature of behavioral and functional aspects of
+%      system components.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\subsection{Motivation}
+
+\begin{frame}
+  \frametitle{Motivation}
+  \begin{itemize}
+  \item[1] Mon expérience à Solidum/IDT Canada: PDL/PTL (Packet Description/Transformation Language)
+    \begin{itemize}
+    \item pour la programmation d'un automate à pile, un CPU/NPU
+    \end{itemize} \mypause
+  \item[2] Edgewater: RTEdge --- langage temps réel pour faciliter la vérification des contraintes temporelles 
+    \mypause
+  \item Dans les deux cas des nouveaux langages étaient nécessaires
+    même si des milliers de langages de programmation existent déjà...
+    \mypause
+  \item \Kernel{} se donne comme objectif d'être une base (noyau) qui
+    puisse être facilement étendue pour satisfaire les exigences de
+    PTL, RTEdge, et autres langages dédiés.
+  \end{itemize}
+\end{frame}
+
+\subsection{À quoi ça sert ...}
+
+\begin{frame}
+  \frametitle{À quoi ça sert ...}
+  \begin{itemize}
+  \item \Kernel{} n'est pas un langage de programmation d'usage
+    générale pour les professionnels de l'informatique...
+
+    {\small\color{gray} ...même si l'on pouvait l'utiliser pour
+      développer des cites WEB ou pour des GUIs, la notation \Kernel{}
+      n'était pas conçue pour ça.}
+
+
+\mypause
+\item On peut être intéressé par \Kernel{} si on cherche à développer
+  des programmes avec des \alert{preuves} que: 
+    \begin{itemize}
+    \item le programme utilise des ressources d'une manière contrôlée,
+    \item le programme est \alert{correct}.
+    \end{itemize}
+
+  \end{itemize}
+\end{frame}
+
+\section{Survole de l'approche}
+
+\begin{frame} 
+  \frametitle{Survole de l'approche}
+  \begin{center}
+    \input{schema.pstex_t}
+  \end{center}
+\end{frame}
+
+\section{Plan du cours}
+
+\begin{frame} 
+  \frametitle{Plan du cours}
+  \begin{enumerate}
+  \item Introduction à la notation \Kernel{} 
+  \item Compilation vers le système FIFO 
+  \item Vérification par \emph{over-approximations} 
+  \end{enumerate}
+
+  \hfill \input{schema-talk.pstex_t}
+\end{frame}
+
+
+
+
+\section{Syntaxe}
+
+\subsection{Types de données}
+
+\begin{frame}[fragile]
+  \frametitle{Types de données:}
+
+  En BNF:
+  {\footnotesize\color{red}
+\begin{verbatim}
+  Type_def     ::=  "<type>" Type_Name "<is>" Type ";"
+  Type         ::=  Record_Type | Variant_Type | Type_Name
+  Record_Type  ::=  "{" Label Type "," ... "}"
+  Variant_Type ::=  "[" Label Type "," ... "]"
+  Label        ::=  "'" Identifier 
+  Type_Name    ::=  Identifier
+\end{verbatim} 
+  }
+    
+  Par exemple:{\footnotesize
+    \begin{itemize}
+    \item[] \color{blue}\verb+<type> UNIT <is> {}; +
+    \item[] \color{blue}\verb+<type> BOOL <is> [ 'true {}, 'false {} ]; +
+    \end{itemize}
+  }
+  
+  Par convention, on peut éliminer les accolades \verb+{}+. Par exemple:
+  \begin{quote} \footnotesize
+    \color{blue}\verb+<type> BOOL <is> [ 'true, 'false ]; +
+  \end{quote}
+  
+  
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Types de données, valeurs et patterns}\small
+  \textcolor{blue}{\texttt{<type> nat <is> ['0 \{\}, '1 nat ];}}
+  \begin{center}
+    \input{nat.pstex_t}      
+  \end{center} \mypause 
+  {\footnotesize Valeurs possibles: {\color{blue}\verb+'0+},~ {\color{blue}\verb+'1'0+},~
+    {\color{blue}\verb+'1'1'0+}, etc.\mypause, sont des \alert{arbres}!}\\[0.4cm]
+  
+  \mypause 
+  
+  Dans \Kernel{}, un \og\alert{type}\fg{} est:\footnotesize
+  \begin{itemize}
+  \item un ensemble de valeurs (arbres),
+  \item un ensemble de \emph{constructeurs} (attributs), et
+  \item un ensemble de \emph{patterns} (la partie initiale de la valeur, e.g., \og{}{\color{blue}\verb+'1 ...+}\fg{}).
+  \end{itemize} ~
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Types de données, valeurs et patterns: un exemple}
+  {\footnotesize\color{blue}
+\begin{verbatim}
+      <type> bit <is> ['0, '1];
+      <type> 2bits <is> {'b0 bit, 'b1 bit};
+      <type> 2bits-bis <is> {'b1 ['0,'1], 'b0 ['1,'0]};
+\end{verbatim} 
+  }\small
+  \begin{itemize}
+  \item Valeurs: \mypause 
+{\color{blue}\verb+{'b0 '0, 'b1 '0}+}, \mypause 
+{\color{blue}\verb+{'b0 '0, 'b1 '1}+}, \mypause
+{\color{blue}\verb+{'b0 '1, 'b1 '0}+}, \mypause
+{\color{blue}\verb+{'b1 '1, 'b0 '1}+}. 
+
+\mypause
+\footnotesize
+\item Pattern \og{}{\color{blue}\verb+2bits+}\fg{} (ou {\color{blue}\verb+{'b0 bit, 'b1 bit}+}, etc) 
+  \mypause
+  dénote toutes les valeurs de ce type!
+  \mypause
+\item Pattern 
+  \og{}{\color{blue}\verb+{'b0 '0, 'b1 bit}+}\fg{}\mypause, dénote
+  {\color{blue}\verb+{'b0 '0, 'b1 '0}+} et
+  {\color{blue}\verb+{'b0 '0, 'b1 '1}+}.
+\mypause
+\item Si le type de pattern est non ambiguë, on peut utiliser \og{\color{blue}\verb+...+}\fg, e.g.: 
+ \og{\color{blue}\verb+{'b0 '0, 'b1 ...}+}\fg, ou même  \og{\color{blue}\verb+{'b0 '0, ...}+}\fg.
+\end{itemize}
+
+
+\end{frame}
+
+
+\subsection{Relations}
+\begin{frame}
+  \frametitle{Les composantes de \Kernel{} sont des \emph{relations}}
+  \begin{center}
+    \input{relation.pstex_t}
+  \end{center}
+  Chaque composante (non-récursive) peut être transformée en un automate
+  fini (à plusieurs bandes).
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Intuition}
+  \begin{itemize}
+  \item Produit (parallélisme): \og{}{\color{blue}\verb+{'one R1, 'two R2}+}\fg{}
+
+    \begin{quote}\footnotesize
+      Si {\color{blue}\verb+R1:({} -> T1)+} et  {\color{blue}\verb+R2:({} -> T2)+}, alors   
+      {\color{blue}\verb+{'one R1, 'two R2}:({} -> {'one T1, 'two T2})+}.
+    \end{quote}
+  \item Union (concurrence):   \og{}{\color{blue}\verb+[R1, R2]+}\fg{}
+
+    \begin{quote}\footnotesize
+      Les relations {\color{blue}\verb+R1+}, {\color{blue}\verb+R2+}, et
+      {\color{blue}\verb+[R1, R2]+} sont tous de même type.
+    \end{quote}
+
+  \item Abstraction: \og{}{\color{blue}\verb+( $x Pattern -> R )+}\fg{}
+
+    \begin{quote}\footnotesize
+      Si {\color{blue}\verb+R:({} -> T1)+} et
+      {\color{blue}\verb+Pattern:T2+}, alors
+      {\color{blue}\verb+($x Pattern -> R):(T2 -> T1)+}.
+    \end{quote}
+   \item Composition (piping): \og{}{\color{blue}\verb+R1 :: R2+}\fg{}
+
+    \begin{quote}\footnotesize
+      Si {\color{blue}\verb+R1 : (T1 -> T3)+} et
+      {\color{blue}\verb+R2 : (T3 -> T2)+}, alors
+      {\color{blue}\verb+R1::R2 : (T1 -> T2)+}.
+    \end{quote}
+  
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Syntaxe}
+
+En BNF: {\scriptsize\color{red}
+\begin{verbatim}
+Rel_def    ::= "(" Type "->" Type ")" Rel_Name "=" Expr ";"
+             | "(" "{}" "->" Type ")" Rel_Name "=" "<input>" ";"
+             | "(" Type "->" "{}" ")" Rel_Name "=" "<output>" ";"
+Expr       ::= Rel_Name | "$" Var_Name | "@" Field_Name   
+             | Label Expr  |  Expr "." Label  |  Expr "::" Expr 
+             | "(" "$" Var_Name Pattern "->" Expr ")" 
+             | "{" Label Expr "," ... Serialize "}" 
+             | "[" Expr "," ... Priority "]"
+Pattern    ::= "..." | Type | Label Pattern 
+             | "{" Label Pattern "," ... "}"
+Serialize  ::= | "<serialize>" Rel_Name Serialize
+Priority   ::= | "<unknown>" | "<longest>"  Rel_Name Priority
+             | "<shortest>" Rel_Name Priority
+\end{verbatim}}
+
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Syntaxe par exemple}\color{blue}
+\footnotesize \mypause
+\begin{verbatim}
+<type> bool <is> ['true {}, 'false {}];
+
+({} -> bool) t = 'true {}; 
+
+(bool -> bool) not =
+      [ ($x 'true -> 'false {}),    
+        ($x 'false -> 'true {}) ];
+
+({'x bool, 'y bool} -> bool ) or = 
+   [ ($x {'x 'true,...} -> 'true {}),
+     ($x {'x 'false,...} -> $x.y) ];    	
+
+({} -> bool) main = {'x t, 'y t :: not} :: or;
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Syntaxe par exemple (notation simplifiée)}\color{blue}
+\footnotesize \mypause
+\begin{verbatim}
+<type> bool <is> ['true, 'false];  
+
+bool t = 'true;                    
+
+(bool -> bool) not =
+      [ ('true -> 'false),         
+        ('false -> 'true) ];       
+
+({'x bool, 'y bool} -> bool ) or = 
+   [ ({'x 'true,...} -> 'true),    
+     ({'x 'false,...} -> $.y) ];   	
+
+bool main = {'x t, 'y t :: not} :: or; 
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Syntaxe par exemple (notation simplifiée)}\color{blue}
+\footnotesize 
+\begin{verbatim}
+<type> bool <is> ['true, 'false];  -- ['true {}, 'false {}];
+
+bool t = 'true;                    -- ({} -> bool) t = 'true {}; 
+
+(bool -> bool) not =
+      [ ('true -> 'false),         -- ($x 'true -> 'false {})    
+        ('false -> 'true) ];       -- ($x 'false -> 'true {})
+
+({'x bool, 'y bool} -> bool ) or = 
+   [ ({'x 'true,...} -> 'true),    -- ($x {'x 'true,...} -> 'true {})
+     ({'x 'false,...} -> $.y) ];   -- ($x {'x 'false,...} -> $x.y)   	
+
+bool main = {'x t, 'y t :: not} :: or;  -- ({} -> bool) main = ...
+\end{verbatim}
+\end{frame}
+
+
+\section{Compilation}
+
+
+
+\subsection{Construire l'automate} 
+\begin{frame}
+  \frametitle{Construire l'automate}
+  Chaque construction de \Kernel{} est une opération sur les \emph{relations}.
+  \begin{itemize}
+  \item \textbf{Pattern} \mypause
+    \begin{itemize}
+    \item À chaque \emph{pattern} correspond un \alert{langage régulier d'arbres}
+    \item Les langages réguliers d'arbres forme une algèbre de Boole:
+      union, intersection, et complément des langages réguliers
+      d'arbres restent réguliers.
+    \end{itemize} 
+    \mypause
+  \item \textbf{Produit}, \textbf{Union}, et \textbf{Composition}
+    \mypause sont des variations de compositions des relations.
+
+    \mypause Ils correspondent aux opérations sur des automates.
+  \item ...
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Un exemple...}
+\begin{itemize}
+\item Pattern \texttt{\{'x ..., 'y '0\}} de type \texttt{\{'x nat, 'y nat\}}:
+  \[(x/x)(1/1)^{\ast}(0/0)(y/y)(0/0)\] \mypause
+
+\item Projection $\texttt{\$.x}$:
+  \[(x/)(1/1)^{\ast}(0/0)(y/)(1/)^{\ast}(0/)\] \mypause
+
+\item Abstraction:
+\[
+  \underbrace{(\underbrace{\{\texttt{'x ..., 'y '0}\}}_{(x/x)(1/1)^{\ast}(0/0)(y/y)(0/0)} \rightarrow 
+   \underbrace{\texttt{\$.x}}_{(x/)(1/1)^{\ast}(0/0)(y/)(1/)^{\ast}(0/)})}_{(x/)(1/1)^{\ast}(0/0)(y/)(0/)}
+\]
+\end{itemize}
+\end{frame}
+
+\subsection{Systèmes FIFO}
+\begin{frame}
+  \frametitle{Systèmes FIFO}
+  \begin{itemize}
+  \item Un système FIFO est un réseau d'automates finis connectés par
+    canaux unidirectionnels point-à-point de type FIFO
+    (First-In-First-Out). \mypause
+
+  \item Les  avantages d'une telle représentation:
+    \begin{itemize}
+    \item simple et facile à réaliser \mypause 
+    \item admet une réalisation distribuée \mypause
+    \item facilite les techniques formelles de vérification via ``over-approximation''
+    \end{itemize}
+
+  \end{itemize}
+\end{frame}
+
+\subsection{Connecting state machines into FIFO system}
+\begin{frame}
+  \frametitle{Connecting state machines into FIFO system}
+  \begin{itemize}
+  \item Finiteness of state representation of relations is not always
+     preserved, e.g., because of recursion. \mypause
+   \item We overcome the state explosion problem by constructing a
+     FIFO system instead of a single transducer. \mypause
+   \item The challenge is in constructing a ``useful'' FIFO system  
+     \mypause
+     \vfill
+   \item[] \textcolor{blue}{many different techniques may be
+       considered to build a FIFO system from a \Kernel{}
+       specification... this remains our main research topic... }
+  \end{itemize}
+
+\end{frame}
+
+
+\section{Verification}
+\subsection{Over-approximation}
+\begin{frame}
+  \frametitle{Over-approximation}
+  \begin{itemize}
+  \item In theory, a finite state FIFO system (i.e., with bounded size
+    channels) can be verified using SPIN/Promela tool set ... \mypause
+    --- however, checking if FIFO system is ``finite state'' is
+    undecidable! \mypause
+  \item Over-approximation:
+    \begin{itemize}
+    \item over-approximation of $S$ consists in adding ``executions''
+      to the system creating its ``over-approximation'' $S'$,
+      hopefully simpler to analyze \mypause
+    \item to prove that every execution of $S$ has a property $\phi$,
+      we prove that  every execution of $S'$ has the property $\phi$ \mypause
+    \item E.g., the over-approximation can be used in proving that a
+      WCRT is bounded by a ``deadline''
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+
+\subsection{Over-approximation techniques}
+\begin{frame}
+  \frametitle{Over-approximation techniques}
+  \begin{itemize}
+  \item We have considered two over-approximations of a FIFO system
+    $S$: \mypause
+    \begin{itemize}
+    \item Transformation of $S$ into a finite state machine: \mypause
+
+      It can be done by a successive elimination of FIFO channels. \mypause
+
+      \textcolor{blue}{Question: How a FIFO channel can be eliminated?}
+
+      \mypause
+    \item Transformation of $S$ into a Petri Net. \mypause
+      
+      If the FIFO channels are replaced by ``any-order'' containers
+      then without loosing any possible execution of the initial FIFO
+      system, we can replace every channel by a finite set of Places.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conclusions}
+  \begin{itemize}
+  \item We propose a simple but powerful notation for describing
+    computing systems \mypause
+  \item Semantics of the notation is expressed in terms of
+    multi-dimensional ``relations'' which can be effectively
+    implemented as a FIFO system \mypause
+  \item We mentioned two techniques which can transform FIFO system by
+    over-approximation into:
+    \begin{itemize}
+    \item a finite state machine
+    \item a Petri-Net
+    \end{itemize} 
+    \mypause
+  \item This is work in progress ... \textcolor{blue}{especially
+      meaningful FIFO system construction}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Thank you}
+
+Thank you! \mypause
+\end{frame}
+the end 
+\end{document}
+

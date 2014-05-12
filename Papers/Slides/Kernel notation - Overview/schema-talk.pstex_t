@@ -1,0 +1,37 @@
+\begin{picture}(0,0)%
+\includegraphics{schema-talk.pdf}%
+\end{picture}%
+\setlength{\unitlength}{3947sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(3461,2107)(-182,-855)
+\put(2897,677){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Target system}%
+}}}}
+\put(2620,-271){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Petri Net}%
+}}}}
+\put(585,-271){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Finite State}%
+}}}}
+\put(1602,732){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Virtual Machine}%
+}}}}
+\put(308,782){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Specification}%
+}}}}
+\put(308,654){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}in \Kernel{}}%
+}}}}
+\put(952,717){\rotatebox{90.0}{\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,1}compilation}%
+}}}}}
+\put(2325,735){\rotatebox{90.0}{\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,1}code generation}%
+}}}}}
+\put(2256,735){\rotatebox{90.0}{\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,1}optimization}%
+}}}}}
+\put(1602,-63){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,1}Overapproximation}%
+}}}}
+\put(585,-375){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Machine}%
+}}}}
+\put(1602,608){\makebox(0,0)[b]{\smash{{\SetFigFont{5}{6.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}as FIFO system}%
+}}}}
+\end{picture}%

@@ -1,0 +1,24 @@
+Kernel Language is a simple first order functional programming
+language. The main characteristics of Kernel language are:
+
+1. The language is embeddable (extensible) via concepts of Environment Monoid;
+
+2. An efficient (and in some sense optimal) compilation for the language exists;
+
+3. Programs written in Kernel Language are predictable (formal
+   reasoning about Kernel programs is possible due to the mathematical
+   semantics of the language).
+
+
+A programming language can be used for describtion of a pure
+mathematical function as well as for description of an interactive
+system (coffee machine). Often, the behavioral and the functional
+aspects of programming are considered as incompatible. 
+
+LINKING:
+
+Two compiled Kernel programs can be linked together however this is
+like composing pipes in UNIX; the resulting system (may be
+distributed) is interpreted. On the other hand two Kernel programs put
+together within compilation process will produce highly optimised one
+executable program.

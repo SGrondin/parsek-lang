@@ -1,0 +1,4 @@
+<code> bool <is> ['true {}, 'false {}];
+
+<code> list <is> ['empty {}, 'list {'car bool, 'cdr list}]
+

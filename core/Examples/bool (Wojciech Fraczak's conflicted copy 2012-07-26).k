@@ -1,0 +1,17 @@
+-- We define the Boolean type and we evaluate the expression  
+--    not ( 'true or 'false )
+-- which should give 'false.
+ 
+<type> bool <is> ['true {},'false {}];
+
+<type> nat <is> ['0,'s nat];
+
+(nat -> nat) pred <is> ('s ... -> $.s);
+
+({'x nat, 'y nat} -> bool) x-ge-y <is> [
+     ({'y '0, ...} -> 'true),
+     ({'x '0, ...} -> 'false),
+     (... -> {'x $.x | pred, 'y $.y.s}) | x-ge-y
+];
+
+    

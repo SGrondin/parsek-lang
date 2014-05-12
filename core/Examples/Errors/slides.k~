@@ -1,0 +1,71 @@
+<type> nat <is> ['0, '1 nat];      -- (recursive) variant type
+
+<type> nat2 <is> ['0, '1 {'f nat, 's ['a, 'b]}];
+
+<type> B1 <is> ['0, '1 B2];
+<type> B2 <is> ['0, '1 B1];
+<type> B3 <is> ['0, '1 B1];
+
+B1 b1 <is> '0;
+B2 b2 <is> '0;
+B3 b3 <is> '0;
+
+(B1 -> {}) b1Fn <is> (... -> {});
+
+test <is> b2 :: b1Fn :: ({} -> b2) :: b1Fn;
+ 
+
+<type> blah <is> ['b, 'a];
+
+<type> nat3 <is> ['0, '1 {'f nat, 's blah}];
+
+
+nat3 o <is> '0;
+
+(nat2 -> {}) tttt <is> (... -> {});
+
+bbb <is> o :: tttt;
+
+-- examples:
+({} -> nat) 0 = '0;
+({} -> nat) 1 = '1'0;
+nat 10 = '1'1'1'1'1'1'1'1'1'1'0;
+
+<type> pair <is> {'x nat, 'y nat};  -- record type
+-- examples:
+pair 0_and_1 = {'x 0, 'y 1};
+pair 1_10 = {'y 10, 'x '1'0};  
+
+(pair -> pair) swap = (... -> {'x $.y, 'y $.x});
+(nat -> pair) double = ($arg nat -> {'x $arg, 'y $arg});
+// or  (nat -> {'x $, 'y $});
+// or  (... -> {'x $, 'y $});
+
+nat get_nat = <input>;      -- FIFOs
+(nat -> {}) put_nat = <output>;
+
+(pair -> nat ) f1 = ({'x nat, 'y '0 } -> $.x);
+(pair -> nat ) f2 =  ({'x '1 nat, ...} -> {'x $.x.1, 'y $.y.1}) :: x-y;
+
+({'x nat, 'y nat} -> nat) x-y = [ f1, f2 ];
+
+(pair -> nat) y-x = swap :: x-y;
+
+pair get_pair = {'x get_nat, 'y get_nat  <serialize> get_nat};
+skip_a_nat = get_nat :: (nat -> {});
+
+// ({}->{}) main ...
+// {} main ...
+({} -> nat) main =
+ [
+   skip_a_nat :: get_nat,
+  
+  {'y get_nat, 'x  '1'1 @y} :: x-y,
+
+   skip_a_nat :: get_pair :: '1 [y-x, x-y] 
+
+   #                 <shortest> get_nat
+   <longest> get_nat
+ ];
+
+

@@ -1,0 +1,763 @@
+% BIBTEX REFERENCE NAME OF THIS DOCUMENT: \cite{solidum-???}
+
+\documentclass[12pt]{article}
+%%% A hack to produce the CVS revision string, e.g., `Revision 1.10'
+%%% DO NOT EDIT THE FOLLOWING LINE!
+\newcommand{\Revision}{$\makebox[0pt]{}$Revision: 1.12 $\makebox[-0.7ex]{}$} 
+
+%%% -------------- draftcopy ---------
+%%% OPTIONS:
+%%%    none | first | firsttwo | all
+%%%    bottom | bottomafter
+%%%    outline | light | dark  
+\usepackage[all,bottom,dark]{draftcopy}
+\draftcopyName{IDT Canada Inc. Confidential }{82}
+\draftcopySetGrey{0.92} %% 0.0=black, 1.0=white
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{fullpage}
+\usepackage{graphics}
+\usepackage{color}
+%\usepackage{times}
+
+\newcommand{\out}[1]{} 
+\newcommand{\status}[1]{} 
+\newcommand{\df}[1]{\stackrel{\mathtt{def}}{#1}}
+
+\newcommand{\sem}[1]{\left\|{#1}\right\|} 
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+
+\theoremstyle{remark}
+\newtheorem{conj}{Conjecture}
+\newtheorem{note}{Note}
+
+\theoremstyle{example}
+\newtheorem{ex}{Example}
+
+\status{ ...draft... }
+\title{PTL semantics}
+
+\author{Wojciech Fraczak}
+\date{IDT Canada Inc. \\ 
+  Ottawa, Ontario, Canada \\[1em] 
+  \small\Revision}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  A fully compositional semantics of PTL including behavioral aspects
+  (side effects) is described.  In addition, we investigate a
+  ``concrete semantics'' of PTL which can be used as a starting point
+  for design of a high-performance compiler.
+\end{abstract}
+
+\section{Introduction}
+
+This paper is composed of two parts. In the first part we describe in
+an abstract but precise way the main concepts of PTL syntax and
+semantics such as \emph{basic types}, \emph{templates},
+\emph{environment}, and \emph{traces}. The second part defines what we
+call ``concrete semantics'' of PTL. Concrete semantics defines an
+encoding of flat values and practical approach to the traces,
+partitioning the trace alphabet into input and output.
+
+\section{Core PTL abstract syntax}
+
+Most often, the goal of a PTL pogram is to define a function. A PTL
+program consists of basic type definitions and function definitions.
+PTL is ``first order'', which means that a PTL function is taking and
+returning non-functional values (we call then flat values) of basic
+types.
+
+\subsection{Basic types}
+
+We assume the existence of a very special built-in type, called
+``unit''. The unit type carries only one value, also called unit.
+Other non-functional built-in type may also be provided. Other
+non-functional types are defined using two constructs: \emph{disjoint
+  union} (using square brackets) and \emph{product} (using curly
+brackets).
+\begin{verbatim}
+  T ::=   [ ^l1 T1, ..., ^ln Tn ]  |  { ^l1 T1, ..., ^ln Tn }
+\end{verbatim}
+Unit type can be seen as the empty product, i.e., $\{\}$.
+
+Types can be named (by type names) and therefore recursive
+types can be defined.
+
+Basic types are represented as vertices of a minimal labeled
+\emph{and-or} graph, called \emph{type graph}: product types are
+presented by \emph{and} vertices, union nodes by \emph{or} vertices,
+and the unit type is an \emph{and} vertex without children. Every type
+defines a set of values, which are complete hyper-paths of the
+corresponding vertex.
+
+\subsection{PTL functions}
+
+A PTL function $f$ represents a partial mapping from one basic type
+$T_x$ to another basic type $T_y$, which is denoted by
+$(T_x\rightarrow T_y) f$.  A mapping $f$ from unit type, i.e.,
+$(\{\}\rightarrow T_y) f$, is called constant.  A named PTL function
+definition looks like follows:
+\begin{verbatim}
+  (Tx -> Ty) fun_name = fun_body ; 
+\end{verbatim}
+
+The body of a PTL function is an expression \verb+E+ of the following
+form:
+\begin{verbatim}
+ E  ::=  fun_name  |  @label  |  $x  |  ^label E  |  E.^label  |  
+         CONCAT{ ^l1 E1, ^l2 E2, ...}  |  INTER{ ^l1 E1, ^l2 E2, ...}  |  
+         FIRST[ E, ...]  |  LONGEST[ E, ...]  |  SHORTEST[ E, ...]  |  
+         E::E  |  ($x P -> E)
+\end{verbatim}
+where \verb+@label+ is a label of a product constructor, \verb+$x+ is a
+parameter name, \verb+^label+ is a \emph{label}, and \verb+P+ is a
+\emph{template}. The intuitive meaning of the above constructs are in
+order: named function reference, reference to a field of the product
+constructor, reference to the actual parameter value, variant value
+constructor, projection, two product value constructors (by sequential
+and parallel compositions, respectively), merge operations with three
+different conflict resolution strategies, functional composition, and
+functional abstraction.
+
+We require that every such expression is of first order type, and thus
+parameters have to be of a basic type, expressions defining the body
+of a functional expression have to be a constant, and all arguments
+for product constructors are constants.
+
+The complete typing rules are as follows:
+
+...
+
+\subsubsection{Subexpressions and free references}
+
+For every PTL subexpresion $p$ we define the set of the free
+references in the usual recursive way:
+\begin{itemize}
+\item If $p$ is a parameter name or a label of a product constructor,
+  i.e., $p=\$x$ or $p=@l$, then $\texttt{free}(p)=\{p\}$.
+\item If $p$ is an object/function name, then
+  $\texttt{free}(p)=\emptyset$, i.e., empty set.
+\item If $p$ is a pipeline (functional composition), a merge
+  operation, or a product constructor, i.e., $p=p_1{::}p_2$ or $[p_1,
+  p_2]$ or $\{f_1 p_1, f_2 p_2\}$, then
+  $\texttt{free}(p)=\texttt{free}(p_1)\cup\texttt{free}(p_2)$.
+\item If $p$ is a projection or a variant, i.e., $p=q.f$ or $f q$,
+  then $\texttt{free}(p)=\texttt{free}(q)$.
+\item If $p$ is an abstraction, i.e., $p=(\$x \rightarrow q)$, then
+  $\texttt{free}(p)=\texttt{q}\setminus \{\$x\}$.
+\end{itemize}
+
+A subexpression $p$ is called \emph{closed} if $\texttt{free}(p)$ is
+empty.
+
+
+Let $V$ be a countable set of \emph{variable names}, each
+typed by a basic type. We call \emph{context}, any partial
+mapping from (a finite part of) $V$ into values of corresponding
+types. E.g., if $V=\{x,y\}$ sych that $x$ is of type $T_x$ and $y$
+is of type $T_y$, then $C:\{x\mapsto v_x, y\mapsto v_y\}$ is a
+context, with $v_x$ and $v_y$ being some flat values of types $T_x$ and
+$T_y$, respectively. A context naturally extends to PTL expressions.
+
+
+\subsubsection{Templates}
+
+Templates play the role of efficient filters for values of the actual
+parameters.
+
+
+\section{Semantics}
+
+A PTL program can describe functional and behavioral aspects of
+computing. Even though we introduced some constructions (such as three
+kinds of merges and two kinds of product constructors) which explicitly
+deal with behavioral aspect of computing, we have not provided any
+primitives. 
+
+We believe that PTL can be used in different contexts in which the
+primitives would be very different. Thus, we assume that PTL is used
+in a context for which the set of \emph{synchronization events} is
+well defined and they are accessible to a PTL user through a set of
+predefined functions and basic types. 
+
+More precisely, we assume the existance of \emph{PTL environment},
+$\mathcal{E}$, which consists of a set of \emph{synchronization
+  events} and a composition operation which will allow us to build
+complex \emph{traces} (i.e., sequences of synchronization events)
+starting from atomic traces consisting of a single synchronization
+event. Such an environment can be formalized by a notion of
+\emph{monoid}. A monoid is a triple
+$\mathcal{M}=(M,\cdot,1)$, where $M$ is a set, $\cdot$
+is an associative total mapping $M\times M\mapsto M$, and
+$1$ is an elements from $M$ called unit, which verifies
+$x\cdot 1= 1\cdot x =x$, for all $x\in M$.
+In a monoid $(M,\cdot,1)$, we define \emph{prefix relation}, $\leq$, as
+follows: $x\leq y$ if there exists $z\in M$ such that $xz=y$.
+
+We will suppose that a monoid $\mathcal{E}=(M,\cdot,1)$ which
+represents a PTL environment verifies the two following conditions
+
+\begin{itemize}
+\item \emph{prefix relation} is an order, i.e., $x=xyz$ implies
+  $x=xy$, for all $x,y,z\in M$; and
+\item \emph{prefix relation} generates unique infimum, i.e., $x\vee
+  y\df{=}\min\{z\in M\mid x\leq z, y\leq z\}$, if exists, is unique.
+  If $x\vee y$ exists then we write $x\perp y$. Otherwise, i.e., when
+  $x\vee y$ does not exist, we write $x\not\perp y$.
+\end{itemize}
+
+\begin{prop}\label{prop:environment}
+  The following monoids are \emph{environment monoids}:
+  \begin{itemize}
+  \item any free monoid;
+  \item any set monoid (i.e., idempotent commutative free monoid);
+  \item if $M_1$ and $M_2$ are environment monoids then $M_1\times
+    M_2$ is an environment monoid.
+  \end{itemize}
+\end{prop}
+
+Proposition~\ref{prop:environment} allows us to consider the following
+syntax for defining monoids which, by construction, will be
+environment monoids:
+%%
+\[
+M~::=~ \{e_1,\ldots,e_n\}^{\ast} ~\mid~ \mathcal{P}{\{e_1,\ldots,e_n\} } ~\mid~
+M \times M
+\]
+%%
+for any $n \geq 0$. Construction $\{e_1,\ldots,e_n\}^{\ast}$ defines a
+free monoid generated by $n$ prime elements $e_1,\ldots,e_n$, and
+construction $\mathcal{P}{\{e_1,\ldots,e_n\}}$ defines a set monoid
+  generated by $n$ prime elements $e_1,\ldots,e_n$.
+
+
+
+\subsection{Non recursive definitions}
+
+With every PTL subexpression $p$ of type $(T_a\mapsto T_b)$ we
+associate its semantics, $\sem{p}$, i.e., a mapping from a context
+defined on $\texttt{free}(p)$ to a set of quadruples $(m,n,a,b)$, where $m$
+ and $n$ are elements of the environment monoid, $a$ is a flat value of type
+$T_a$, and $b$ is a flat value of type $T_b$. Instead of writing
+$\sem{p}(C)$ we will write $\sem{p}_C$. If $p$ is closed then
+$\sem{p}_C$ does not depend on $C$ and thus we will write $\sem{p}$
+for denoting the unique set of quadruples $(m,n,a,b)$ belonging to
+$\sem{p}_C$.
+
+Intuitively, a quadruple $(m,n,a,b)\in\sem{q}$ means, that $q$ maps
+$a$ into $b$ in the context $m n$ by effectively consuming $m$.
+
+\begin{description}
+
+\item[unit:] $\sem{\{\}}_C \df{=} \{(1,n,\{\}, \{\})\mid n\in M\}$.
+\item[identifier:] $\sem{\$x}_C \df{=} \{(1,n,\{\}, C(\$x)) \mid n\in M\}$.
+
+\item[variant:] $\sem{f~q}_C \df{=} \{(m,n,a,f~b)\mid
+  (m,n,a,b)\in\sem{q}_C\}$.
+
+\item[projection:] $\sem{q.f}_C\df{=}\{(m,n,a,b.f)\mid
+  (m,n,a,b)\in\sem{q}_C\}$.
+
+\item[structure:] We distinguish two synchronization modes which
+  yields two product value constructors:
+  
+  $\sem{\texttt{CONCAT}\{f_1~q_1,f_2~q_2\}}_C \df{=} \{(m_1m_2,
+  m_2^{-1}(n_1\vee m_2n_2), \{\},\{f_1~b_1,f_2~b_2\}) \mid\\ ~~ 
+  (m_1,n_1,\{\},b_1)\in\sem{q_1}_C,
+  (m_2,n_2,\{\},b_2)\in\sem{q_2}_{C.[@f_1\mapsto b_1]} \}$
+  
+  $\sem{\texttt{INTER}\{f_1~q_1,f_2~q_2\}}_C \df{=} \{(m_1\vee
+  m_2,(m_1\vee m_2)^{-1}(m_1n_1\vee m_2n_2), \{\},\{f_1~b_1,f_2~b_2\})
+  \mid \\ ~~ (m_1,n_1,\{\},b_1)\in\sem{q_1}_C,
+  (m_2,n_2,\{\},b_2)\in\sem{q_2}_{C.[@f_1\mapsto b_1]} \}$
+
+
+\item[union:] Conflicts can be resolved in three different ways.
+
+  $\sem{\texttt{FIRST}[q_1,q_2]}_C \df{=}
+  \sem{q_1}_C\cup \\
+  \{(m,nn',a,b) \mid n'\in M, (m,n,a,b)\in\sem{q_2}_C,
+  \forall (m_1,n_1,a,b_1)\in\sem{q_1}_C m_1n_1\not\perp mnn'\}$
+
+  $\sem{\texttt{LONGEST}[q_1,q_2]}_C \df{=}\\
+  \{(m,n,a,b)\in\sem{q_1}_C\mid 
+  \forall (m',n',a,b')\in\sem{q_2}_C 
+  (m'n'\perp mn \Rightarrow m\not\leq m')\}
+  \cup \\
+  \{(m,n,a,b)\in\sem{q_2}_C\mid 
+  \forall (m',n',a,b')\in\sem{q_1}_C 
+  (m'n'\perp mn \Rightarrow m'<m)\}
+  $
+
+
+  $\sem{\texttt{SHORTEST}[q_1,q_2]}_C \df{=}\\
+  \{(m,n,a,b)\in\sem{q_1}_C\mid 
+  \forall (m',n',a,b')\in\sem{q_2}_C 
+  (m'n'\perp mn \Rightarrow m'\not\leq m)\}
+  \cup \\
+  \{(m,n,a,b)\in\sem{q_2}_C\mid 
+  \forall (m',n',a,b')\in\sem{q_1}_C 
+  (m'n'\perp mn \Rightarrow m<m')\} $
+
+
+\item[composition:] 
+  $\sem{q_1 :: q_2}_C \df{=} \\\{(m_1m_2,
+  m_2^{-1}(n_1\vee m_2n_2), a, b) \mid
+  (m_1,n_1,a,c)\in\sem{q_1}_C,(m_2,n_2,c,b)\in\sem{q_2}_C\}$
+
+\item[abstraction:] $\sem{(\$x\,P \mapsto q)}_C\df{=} \{(m,n,a,b)\mid
+  (m,n,\{\},b)\in\sem{q}_{C.[\$x\mapsto a]}\}$, where $C.[\$x\mapsto a]$
+  denotes the following context:
+  \[
+  C.[\$x\mapsto a](v) \df{=}\left\{
+    \begin{array}{ll}
+      a & \mbox{ if } v = \$x \\
+      C(v) & \mbox{ otherwise }
+    \end{array}
+  \right.
+  \]
+\end{description}
+
+The above rules describe the semantics of all non-recursive PTL
+definitions. 
+
+We say that  $S=\sem{q}_C$ for a subexpression
+$q:T_1\mapsto T_b$ is:
+\begin{itemize}
+\item \emph{functional}, whenever $(m,n,a,b),(m,n,a,b')\in S$ implies
+  $b=b'$;
+\item \emph{prefix-deterministic}, whenever $(m,n,a,b),(m',n',a,b')\in S$
+  and $mn\perp m'n'$ implies $m=m'$ and $b=b'$;
+\item \emph{finite}, whenever $\{(m,a,b)\mid (m,n,a,b)\in S\}$ is
+  finite;
+\item \emph{rational}, whenever $\{(m,a,b)\mid (m,n,a,b)\in S\}$ is
+  rational;
+\item \emph{simple}, ???
+\item \emph{k-simple}, ???
+\end{itemize}
+
+\begin{prop}
+  All above operations on $S$ preserve the above properties of its
+  arguments. I.e., if $\sem{q_i}_C$ are \emph{functional} (resp.,
+  prefix-deterministic, finite, rational), then variant, projection,
+  concat, inter, first-match, longest-match, shortest-match,
+  composition, and abstraction are \emph{functional} (resp.,
+  prefix-deterministic, finite, rational).
+\end{prop}
+
+\begin{proof}
+  No proof so far. It has to be proved!
+\end{proof}
+
+
+\subsubsection{Examples}
+
+We consider the following environment:
+\[
+M ~ = ~ \{\texttt{get}\}^{\ast}\times
+        \{\texttt{put}[x] \mid x\in\texttt{BYTE}\}^{\ast}\times
+        \mathcal{P}\{\texttt{lookup}[x]\mid x\in\texttt{BYTE}\}
+\]
+where $\texttt{BYTE}$ is a finite indexing set isomorphic to the set
+of integers from $0$ to $255$. Thus, the primes (atomic actions) are:
+$\texttt{get}, \texttt{put}[0], \ldots, \texttt{put}[255],
+\texttt{lookup}[0], \ldots, \texttt{lookup}[255]$. We assume the
+following PTL declarations corresponding to the primes:
+\begin{verbatim}
+   type BYTE = {0, 1, 2, ..., 255};
+   BYTE getByte;          // get
+   (BYTE -> {}) putByte;  // put[]
+   (BYTE -> BYTE) lookup; // lookup[]
+\end{verbatim}
+Notice that \texttt{getByte} and \texttt{lookup} both return a value.
+In order to keep a value produced by the prime, we put it as an index,
+i.e., if a particular instance of $\texttt{getByte}$ returns value
+$x$, then we denote it by $\texttt{get}_x$.
+
+Let us consider the following PTL function which reads three bytes and
+outputs third byte first, then it outputs the result of the lookup on
+the second byte, and finally outputs the first read byte.
+
+\begin{verbatim}
+type TRIPLE is {^a BYTE, ^b BYTE, ^c BYTE };
+{} example1 =
+   CONCAT{ ^a getByte, ^b getByte, ^c getByte }
+   :: ($x TRIPLE -> 
+       $x.^c :: putByte :: 
+       $x.^b :: lookup :: putByte ::
+       $x.^a :: putByte);
+\end{verbatim}
+
+The semantics of PTL function \verb+example1+ is calculated bottom up
+in the following way:
+\begin{eqnarray*}
+  \sem{getByte} & \df{=} & (\texttt{get}_x,\ast,{},x)\\
+  \sem{putByte} & \df{=} & (\texttt{put}[x]_y,\ast,x,{})\\
+  \sem{lookup} & \df{=} & (\texttt{lookup}[x]_y,\ast,x,y)\\
+  \sem{\texttt{CONCAT}\{a~\texttt{getByte}, 
+    \ldots, c~\texttt{getByte}\}}
+  & = & 
+  (\texttt{get}_i\texttt{get}_j\texttt{get}_k,\ast,\{\},\{a~i,b~j,c~k\})
+  \\
+  \sem{\$x.a}_C & = &  (1,\ast,\{\},C(x).a) \\
+  \sem{\$x.c :: \texttt{putByte}}_C 
+  & = & (\texttt{put}[C(x).c],\ast,\{\},\{\}) \\
+  \sem{\$x.c :: \texttt{putByte} :: \$x.b :: \texttt{lookup}}_C 
+  & = & (\texttt{put}[C(x).c]\texttt{lookup}[C(x).b]_y,\ast,\{\},y)\\
+  \sem{\$x.c :: \ldots :: \texttt{putByte}}_C
+  & = & 
+  (\texttt{put}[C(x).c]
+  \texttt{put}[y]
+  \texttt{put}[C(x).a]
+  \texttt{lookup}[C(x).b]_y,\ast,\{\},\{\})\\
+  \sem{(\$x~\texttt{TRIPLE~->} \ldots)}
+  & = & (\texttt{put}[x.c]
+  \texttt{put}[y]
+  \texttt{put}[x.a]
+  \texttt{lookup}[x.b]_y,\ast,x,\{\})\\
+  \sem{\texttt{example1}}
+  & = &
+  (\texttt{get}_i\texttt{get}_j\texttt{get}_k
+  \texttt{put}[k]
+  \texttt{put}[y]
+  \texttt{put}[i]
+  \texttt{lookup}[j]_y,\ast,\{\},\{\})\\
+\end{eqnarray*}
+
+The semantics of \texttt{example1} can also be depicted by the
+following figure, with explicit causality.
+
+\begin{center}
+\input{order.pstex_t}
+\end{center}
+
+\begin{verbatim}
+(TRIPLE -> BYTE) example2 = 
+   ($x TRIPLE -> [
+       $x.^a :: lookup,
+       $x.^b :: lookup,
+       $x.^c ]);
+
+\end{verbatim}
+
+\subsection{Recursive definitions}
+
+
+Let $\vec{x}=(x_1, \ldots, x_n)$ be a vector of names of closed
+recursive PTL expressions of form $x_i=q_i(\vec{x})$, for $i\in[1,n]$.
+The semantics $\vec{S}=(\sem{x_1},\ldots,\sem{x_n})$ is defined as a
+fix point satisfying the defining equations. In general, a set of
+equations may have none, one, or many solutions. 
+
+
+A solution for a recursive definition can be calculated in the
+following iterative way:
+
+\begin{itemize}
+\item $\vec{S}_0 = (\sem{x_1}_0,\ldots,\sem{x_n}_0) \df{=}
+  (\emptyset,\ldots, \emptyset)$
+\item $\vec{S}_i = (\sem{x_1}_i,\ldots,\sem{x_n}_i) \df{=} 
+ \left(q_0(\vec{S}_{i-1}/\vec{x}),
+  \ldots,q_n(\vec{S}_{i-1}/\vec{x})\right)$
+\item $\vec{S}=(\sem{x_1},\ldots,\sem{x_n})$, where $\sem{x_i} \df{=}
+  \{(m,n,a,b)\mid \exists k \forall j \geq k ~
+  (m,n,a,b)\in\sem{x_i}_j\}$, for $i\in[1,n]$.
+\end{itemize}
+
+\section{Concrete semantics}
+
+In the previous section we defined the abstract semantics of PTL,
+which makes possible reasoning about PTL programs. In order to turn a
+PTL specification into a program which can be executed, we refine the
+abstract semantics into \emph{concrete semantics}, where encoding
+details of flat values and PTL functions are described.
+
+\subsection{Environment events separation}
+
+In order to elaborate the concrete semantics of PTL, we separate the
+synchronization events $\mathcal{E}$ into two groups: input events
+$\mathcal{I}$ and output events $\mathcal{O}$, in such a way that
+$\mathcal{E}=\mathcal{I}\times\mathcal{O}$. Intuitively, input events
+consist of such events as reading some bits from the input packet or
+querying a lookup table, and output events consist of writing to an
+external (write-only) devices.
+
+\subsection{Flat value encoding}
+
+Given a type graph, we consider a very natural encoding of values of
+types which the graph represents, by choosing an encoding alphabet
+$\Sigma$, e.g., $\Sigma=\{0,1\}$, and labeling all outgoing edges of
+each \emph{or} node by strings over the encoding alphabet in such a
+way that no two different edges outcoming of the same node are labeled
+by words which are in the prefix relation.
+
+DFS of the hyper-path of a value defines its encoding...
+
+\subsection{Graph representation of the semantics of a PTL expression}
+
+Let $\mathcal{E}=\mathcal{I}\times\mathcal{O}$ and $\Sigma$ be the
+environment monoid and the flat value encoding alphabet, respectively.
+We define \emph{semantics graph} $G=(V,E,s_0,s_f,F,\lambda)$ over
+$\mathcal{M}=\Sigma^{\ast}\times\mathcal{E}\times\Sigma^{\ast}$, as a
+digraph $(V,E)$, with one starting vertex $s_o\in V$, one ending vertex
+$s_f\in V$ without outgoing edges, a set of final vertexes $F\subset V$,
+and a edge labeling $\lambda:E\mapsto\mathcal{M}$.
+
+Intuitively, vertices of the graph represent states and edges
+represent transitions. An edge $t$ from vertex $s_1$ to $s_2$ and
+labeled by $(w_i,e,w_o)\in\mathcal{M}$ tells us that the modeled
+system with argument value encoded by $w_i$, when in state $s_1$ can
+move to the state $s_2$ producing value $w_o$ and interacting with the
+environment by $e$.
+
+More precisely, every path $\pi$ from $s_0$ to $s_f$ passing by a
+final vertex defines a quadruple $(m,n,a,b)$, where
+$\lambda(\pi)=(w_a,mn,w_b)$ and $\lambda(\pi')=(w'_a,m,w'_b)$, where
+$\pi'$ is the longest initial part of $\pi$ ending in a final vertex,
+$w_a$ is the encoding of $a$ and $w_b$ is the encoding of $b$.
+
+
+
+\subsubsection{Composition}
+
+Given two finite semantics graphs $G_1$ and $G_2$ for expressions
+$(T_1\rightarrow T_2) E_1$ and $(T_2\rightarrow T_3) E_2$, we can
+construct a new finite semantics graph $G = G_1\circ G_2$ which
+represents the functional composition $(T_1\rightarrow T_3) E_1::E_2$.
+
+Without loss of generality we assume that all edge labels of $G_2$ are
+of a form $(w_a,m,w_b)$ with $w_a$ being empty word or a letter, i.e.,
+$w_a\in\Sigma\cup\{\varepsilon\}$. Therefore, a vertex $A$ in $G_2$
+and a word $w\in\Sigma^{\ast}$ defines a set of vertexes $G_2(A).w$ of
+$G_2$ which are reachable from $A$ by a path whose labels $w_a$
+generate $w$. i.e., if $B\in G_2(A).w$ then there exists a path $\pi$
+in $G_2$ starting in $A$ and such that $\label(\pi)=(w,m,w_b)$ for
+some $m\in\mathcal{E}$ and $w_b\in\Sigma^{\ast}$.
+
+
+The composition of $G_1$ and $G_2$ is obtained by a Cartesian product
+of vertixes of $G_1$ and $G_2$, i.e., vertexes of $G$ as pairs
+$(A,B)\in(V_1\times V_2)$.
+
+
+
+\subsubsection{Projection}
+
+
+
+\subsubsection{Structure}
+
+\subsubsection{Union}
+
+\subsubsection{Functional abstraction}
+
+-----
+
+In general, 
+
+
+
+ 
+We require that such a graph be \emph{prefix-deterministic}, i.e., for
+every two different edges $e_1$ and $e_2$ originating from the same
+vertex $u$, we have
+$\overline{\lambda(e_1)}\not\perp\overline{\lambda(e_2)}$.
+
+Let $\mathcal{M}=M\times \Sigma^{\ast} \times \Sigma^{\ast}$, where
+$M$ is an environment monoid and $\Sigma$ is a finite alphabet used
+for encoding flat values. Notice, that $M\times \Sigma^{\ast}$ and
+$\mathcal{M}$ are also environment monoids. Intuitively, an element
+$(m,a,b)\in\mathcal{M}$ represents a step of calculation parametrized
+by $a$, yielding $b$, and interacting with environment via $m$. By
+$\overline{(m,a,b)}$ we denote $(m,a)$, i.e., projection onto two
+first coordinates.
+
+We define \emph{semantics graph} $G=(V,E,i,s,F,\lambda)$ over
+$\mathcal{M}$, as a digraph $(V,E)$, with one starting vertex $i\in
+V$, one ending vertex $s\in V$ without outgoing edges, a set of
+finte vertexes $F\subset V$, and a edge labeling
+$\lambda:E\mapsto\mathcal{M}$. We require that such a graph be
+\emph{prefix-deterministic}, i.e., for every two different edges $e_1$
+and $e_2$ originating from the same vertex $u$, we have
+$\overline{\lambda(e_1)}\not\perp\overline{\lambda(e_2)}$.
+
+
+\subsection{Transducer represenation of PTL expressions}
+
+PTL program without recursive constructs can effectively be translated
+into a sequential transducer. In this section we describe a way of
+constructing them.
+
+
+Transducers (or more generally state based computing) are used to
+encode \emph{functions} by \emph{behavior}.  We describe a
+systematics method of encoding a PTL program which contains functional
+and behavioral description, into a transducer. In our presentation we
+assume that the set of \emph{events} is finite and well defined.
+Moreover, for the sake of this paper, the set of events is divided
+into two disjoint classes:
+\begin{itemize}
+\item Read events: \texttt{getZero}, \texttt{getOne}, \texttt{getEof} 
+\item Write events: \texttt{putZero}, \texttt{putOne}, \texttt{putEof} 
+\end{itemize}
+
+The ``read'' events are strictly deterministic, i.e., that the
+environment is offering to the system a single threaded stream of read
+events. The ``write'' events are commutative with ``read''
+events (i.e., if $x$ is a read event and $y$ is a write event, then
+$x\cdot y= y\cdot x$) and are always accepted by the environment.
+
+Alternatively, read events can be seen as elements of an input
+alphabet and write events as elements of an output alphabet.
+
+\subsection{Bottom-up transducer construction}
+
+The write and read events are represented in PTL as built-in unit type
+objects.  The semantics of an event is a two-state-one-transition
+transducer, whose transition is labaled by the event. Alternatively, a
+read event is represented as the two-state-one-transition transducer,
+and a write event is represented as a one-state-no-transition
+transducer with initial output being the write event. The name of an event
+will be used to denote the corresponding transduser.
+
+\subsection{Value encoding}
+
+Type graph is an edge labeled \emph{and/or} graph. Types correspond to
+vertices: product types are presented by \emph{and} vertices, union
+nodes by \emph{or} vertices, and the unit type is an \emph{and} vertex
+without children. 
+
+We assume that we are given the type graph induced by the PTL program.
+A construction of the minimal type graph is relatively easy.  Given an
+alphabet $\Sigma$, we propose the natural encoding of values of a
+given type by words over $\Sigma$. For a given type, the set of all
+its values is a prefix code.
+
+If $t$ is a type, by $\texttt{id}(t)$ and $\texttt{skip}(t)$ we denote
+the identity transducer (or CSM) on all values of $t$, and the
+automaton accepting all values of $t$, respectively.  If $f$ is a
+field name of type $t$, then $\texttt{proj}(t,f)$ denotes the transducer
+taking any value of type $t$ and returning, if defined, the value of
+the field $f$.  These transducers (CSMs) can be easily constructed
+from the type graph.
+
+
+
+\subsection{Denotational semantics of subexpressions by annotations}
+
+
+With every PTL subexpression $p$ we associate a pair $\sem{p}=(\pi,T)$, called
+annotation of $p$, where $\pi$ is a list of free
+references (with types) in $p$, and $T$ is a transducer (or CSM). If
+$p$ is a closed subexpression, then $\pi$ is empty word, and $T$ is a
+transducer implementing $p$. If $p$ contains some free occurences of
+references, then $\pi$ represents thier order, possibly with
+repetitions, which they should be supplied to the transducer $T$ in
+order to be instantiated. Notice that an open subexpression can have
+many different annotations, however a closed one (if the transducer is
+normalized) will only have one.
+
+The main difficulty in constracting a transducer semantics of a PTL
+subexpression is the treatement of free references. In order to
+overcome the problem we give ourselves \emph{replicator} transducers.
+We will write $\texttt{repl}(\pi_1,\pi_2)$, where $\pi_1=t_1t_2\ldots
+t_n$ is a list of types, and $\pi_2=i_1i_2\ldots i_k$ is the list of
+indexes, $i_j\in[1,n]$ for $j\in[1,k]$, to denote the transducer
+accepting any input of type $\pi_1$ and transforming it into a (sub-)
+list of the same values potentially with duplications and reorderings,
+which is defined by $\pi_2$. For example, $\texttt{repl}((t),(1))$
+corresponds to $\texttt{id}(t)$, and $\texttt{repl}((t),(1,1))$
+corresponds to the transducer accepting any value $v$ of type $t$ and
+producing $vv$.
+
+
+\begin{description}
+
+\item[identifier:] $\sem{\$x} \df{=} (\$x,\texttt{id}(t))$, where $t$
+  is the type of $\$x$.
+
+\item[variant:] $\sem{f~q} \df{=} (\pi,\texttt{code}(f:t)\cdot T)$, where
+  $\sem{q}=(\pi,T)$, $t$ is the image type of $f~q$, and
+  $\texttt{code}(f:t)$ is the constant transducer producing the
+  encoding for field $f$ of type $t$.
+
+\item[structure:] $\sem{\{f_1~q_1, f_2~q_2\}}\df{=}(\pi_1\pi_2,T_1\cdot T_2)$,
+  where $\sem{q_1}=(\pi_1,T_1)$ and $\sem{q_2}=(\pi_2,T_2)$.
+
+  The evaluation order of elements of a structure is given by the
+  order of occurrences (from left to right) of sub-expressions. Thus,
+  in general, we should write:
+  \[
+  \sem{\{f_{i_1}~q_{i_1},\ldots,f_{i_n}~q_{i_n}\}}
+  \df{=}(\pi_{i_1}\cdots\pi_{i_n},(T_{i_1}\cdots T_{i_n})
+  ::\texttt{repl}((t_{i_1} \ldots t_{i_n}),(1,\ldots,n))),
+  \] 
+  % 
+  where $i_1,\ldots, i_n$ is a permutation of the encoding order
+  $1,2,\ldots,n$ of the product type $\{t_1,\ldots,t_n\}$.
+
+
+\item[projection:] $\sem{q.f}\df{=}(\pi,T :: \texttt{proj}(t,f))$,
+  where $t$ is the image type of $q$ and $\sem{q}=(\pi,T)$.
+
+\item[union:] $\sem{[q_1,q_2]}\df{=}(\pi_1\pi_2,T_1\cup T_2$, where
+  $\sem{q_1}=(\pi_1,T_1)$, $\sem{q_2}=(\pi_2,T_2)$, and $T_1\cup T_2$
+  denotes the priority merge of classifiers.
+
+\item[composition:] $\sem{q_1 :: q_2}\df{=}(\pi_2\pi_1,
+  (\texttt{id}(\pi_2)\cdot T_1) :: T_2)$, where
+  $\sem{q_1}=(\pi_1,T_1)$ and $\sem{q_2}=(\pi_2,T_2)$. 
+
+\item[abstraction:] $\sem{(\$x\,P \mapsto q)}\df{=}
+  (\pi',\texttt{repl}(\pi'\, x, \omega)
+  ::(\texttt{id}(\pi)\cdot\texttt{pattern}(P)) ::T)$, where
+  $\sem{q}=(\pi,T)$, pattern $P$ is of type $t$, and $\pi'$ and
+  $\omega$ are such that $x$ is not in $\pi'$ and
+  $\texttt{repl}(\pi'\, x, \omega)$ corresponds to $\pi$, e.g., if
+  $\pi=yxxyz$ then $\pi'=yz$ and $\omega=(1,3,3,1,2)$ are possible
+  values.
+
+\end{description}
+
+
+\section{Transducer operations with respect to side effects}
+
+\subsection{Product}
+
+We have two cases for synchronization:
+\begin{itemize}
+\item concatenation $T_1;T_2$ --- every synchronization event of $T_1$
+  precedes every event of $T_2$
+
+
+\item intersection $T_1\cdot T_2$ --- an event in $T_1$ can occur only
+  if the same (unified?) event occurs in $T_2$, or $T_2$ already
+  finished (and vice-versa).
+\end{itemize}
+
+\subsection{Union}
+
+\subsection{Pipeline}
+
+As for concatenation product, in $T_1:: T_2$ every synchronization
+event of $T_1$ precedes every event of $T_2$.
+
+\end{document}
+
+
+
+\end{document}
+

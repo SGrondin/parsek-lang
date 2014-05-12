@@ -1,0 +1,18 @@
+\beamer@endinputifotherversion {3.06pt}
+\beamer@sectionintoc {1}{Introduction}{2}{0}{1}
+\beamer@subsectionintoc {1}{1}{Introduction}{2}{0}{1}
+\beamer@subsectionintoc {1}{2}{History and motivation}{5}{0}{1}
+\beamer@subsectionintoc {1}{3}{What Kernel is for...}{9}{0}{1}
+\beamer@sectionintoc {2}{Overview of the approach}{11}{0}{2}
+\beamer@sectionintoc {3}{Outline of the talk}{12}{0}{3}
+\beamer@sectionintoc {4}{Introduction to Kernel notation}{13}{0}{4}
+\beamer@subsectionintoc {4}{1}{Values as rooted trees}{13}{0}{4}
+\beamer@subsectionintoc {4}{2}{Relations}{17}{0}{4}
+\beamer@subsectionintoc {4}{3}{Syntax}{18}{0}{4}
+\beamer@sectionintoc {5}{Compilation}{27}{0}{5}
+\beamer@subsectionintoc {5}{1}{Building state machines}{27}{0}{5}
+\beamer@subsectionintoc {5}{2}{FIFO system}{35}{0}{5}
+\beamer@subsectionintoc {5}{3}{Connecting state machines into FIFO system}{40}{0}{5}
+\beamer@sectionintoc {6}{Verification}{44}{0}{6}
+\beamer@subsectionintoc {6}{1}{Over-approximation}{44}{0}{6}
+\beamer@subsectionintoc {6}{2}{Over-approximation techniques}{49}{0}{6}

@@ -1,0 +1,4 @@
+-- 'app {'f 'var 'b'_, 'a 'var 'a'_};
+-- 'abs {'x 'a'_, 'e 'var 'b'_};
+-- 'var 'b'_;
+'app {'f 'abs {'x 'a'_, 'e 'var 'b'_}, 'a 'var 'a'b'_};

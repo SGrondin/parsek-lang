@@ -1,0 +1,30 @@
+<code> gnat <is> ['_, '0 gnat, '1 gnat];
+
+(gnat -> bool) max <is> [
+      ('_ -> 'true),
+      ('0 ... -> 'false),
+      ('1 ... -> $.1 | min) ];
+
+(gnat -> bool) min <is> [
+      ('_ -> 'true),
+      ('0 ... -> $.0 | min),
+      ('1 ... -> 'false) ];
+
+(gnat -> gnat) succ <is> [
+      ('_ -> '1'_),
+      ('0 ... -> [ $.0 | max | ('true -> {}) | ['1 $.0],
+                   '0 [$.0 | succ] ]),
+      ('1 ... -> [ $.1 | min | ('true -> {}) | ['1 $],
+                   '1 [$.1 | prec] ])
+];
+
+(gnat -> gnat) prec <is> [
+      ('1'_ -> '_),
+      ('0 ... -> '0 [$.0 | prec]),
+      ('1 ... -> [ $.1 | max | ('true -> {}) | ['0 $.1],
+                   '1 [$.1 | succ] ])
+];
+
+gnat main = '_ | succ;
+
+

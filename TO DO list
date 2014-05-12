@@ -1,0 +1,38 @@
+Objective is to develop a course "Computer Science in practice" containing:
+
+1. a textbook
+
+2. a compiler and a linker for "Kernel language"
+
+The book would contain:
+=======================================
+
+- introduction to automata and language theory --- syntax of Kernel language
+
+- And-Or graphs in practice (Simple languages, simple functions, and
+  regular tree languages) --- system of Kernel types, type equivalence,
+  encoding of values by strings
+
+- rational relations and multi-tape transducers --- translation of
+  kernel relations into transducers, BDDs
+
+- verification of programs by over approximation --- channel product
+  in FIFO environment
+
+
+Missing pieces for compiler and linker:
+=======================================
+
+- compilation into a net of multi-tape transducers (in order to avoid
+  infinite transducers)
+  
+- Kernel link: we need a simple linker able to implement an
+  interpreter for "FIFO environment".
+
+  = definition of "FIFO environment"
+
+  = how to design the linker to work with many environments?
+
+  = define a link-language to be able to do parallel/distributed computing
+
+ 

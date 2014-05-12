@@ -1,0 +1,149 @@
+-- Decimal encoding of natural numbers plus the operations.
+-- requires "digits.k"
+
+<code> dnat <is> ['_, '0 dnat, '1 dnat, '2 dnat,'3 dnat,'4 dnat, 
+       	    	      '5 dnat, '6 dnat, '7 dnat, '8 dnat, '9 dnat ];
+
+# dnat 123 = '1'2'3'_;
+
+(dnat -> dnat) remove_leading_zeros = 
+      [ 
+        ('0 ... -> $.0) | remove_leading_zeros,
+	(... -> $) 
+      ];
+
+(dnat -> digit) first_digit =[
+     ('0 ..., '_ -> '0),
+     ('1 ... -> '1),
+     ('2 ... -> '2),
+     ('3 ... -> '3),
+     ('4 ... -> '4),
+     ('5 ... -> '5),
+     ('6 ... -> '6),
+     ('7 ... -> '7),
+     ('8 ... -> '8),
+     ('9 ... -> '9)];
+
+(dnat -> dnat) rm_first_digit =  [ 
+     ('_ -> '_),
+     (... -> [$.0,$.1,$.2,$.3,$.4,$.5,$.6,$.7,$.8,$.9])
+];
+
+(dnat -> {'n dnat,'d digit}) decompose =
+     (... -> {'n $|rm_first_digit, 'd $|first_digit});
+
+({'n dnat, 'd digit} -> dnat) prepend_digit = [
+     ({'d '0,...} -> '0 $.n),
+     ({'d '1,...} -> '1 $.n),
+     ({'d '2,...} -> '2 $.n),
+     ({'d '3,...} -> '3 $.n),
+     ({'d '4,...} -> '4 $.n),
+     ({'d '5,...} -> '5 $.n),
+     ({'d '6,...} -> '6 $.n),
+     ({'d '7,...} -> '7 $.n),
+     ({'d '8,...} -> '8 $.n),
+     ({'d '9,...} -> '9 $.n)];
+
+({'n dnat, 'd digit} -> dnat) append_digit = [ 
+        ({'n '_, ...} -> $) | prepend_digit,
+	(... ->  {'d $.n | first_digit, 
+	     	  'n {'n $.n | rm_first_digit, 'd $.d} | append_digit
+		 }) | prepend_digit
+	];		 
+
+(dnat -> dnat) reverse = 
+     [ 
+        ('_ -> '_),
+	decompose 
+	| (... -> {'n $.n | reverse, 'd $.d}) 
+	| append_digit
+     ];
+
+({'x dnat, 'y dnat} -> {'x dnat, 'y dnat}) reverse_each <is>
+     (... -> {'x $.x|reverse, 'y $.y|reverse});
+({'x dnat, 'y dnat} -> {'x dnat, 'y dnat}) swap_x-y <is>
+     (... -> {'x $.y, 'y $.x});
+
+
+
+({'x dnat, 'y dnat} -> dnat) x++y = (... ->
+     {'x $.x | reverse, 'y $.y | reverse, 'c'0})
+     | x+y+c | reverse;
+      
+({'x dnat, 'y dnat, 'c digit} -> dnat) x+y+c =
+     [
+      ({'x'_,'y'_,'c'0} -> '_),
+      ({'x'_,'y'_,...} -> {'n '_,'d $.c}) | prepend_digit,
+      (... ->
+        {'x $.x | decompose, 
+	 'y $.y | decompose,
+	 'x+y+c {'x @x.d, 'y @y.d, 'z $.c} | x+y+z,
+	 'r {'n {'x @x.n, 'y @y.n, 'c @x+y+c.c} | x+y+c,
+	     'd @x+y+c.d
+            } | prepend_digit
+         }).r
+];
+ 
+/* 
+dnat main <is> {'x '9'9'9'_, 'y'5'2'1'_} | x++y;
+*/
+
+({'x dnat, 'y dnat} -> dnat) x--y <is>
+     (... -> 
+      $ | swap_x-y | pad | x-le-y |
+      {'x $.x|reverse, 'y $.y|reverse, 'c '0 })
+     | x-y-c | reverse | remove_leading_zeros;
+
+dnat main <is> {'x '1'3'7'_, 'y @x} | x--y;
+
+
+({'x dnat, 'y dnat, 'c digit} -> dnat) x-y-c <is>
+     [
+      ({'x'_, ...} -> '_),
+      ({'y'_, 'c'0, ...} ->  $.x),
+      ({'y'_, ...} -> {'x $.x, 'y '0'_, 'c $.c}) | x-y-c,
+      (... ->
+        {'x $.x | decompose, 
+	 'y $.y | decompose,
+	 'x-y-c {'x @x.d, 'y @y.d, 'z $.c} | x-y-z,
+	 'r {'n {'x @x.n, 'y @y.n, 'c @x-y-c.c} | x-y-c,
+	     'd @x-y-c.d
+            } | prepend_digit
+         }).r
+      ];	 
+
+
+({'x dnat, 'y dnat} -> {'x dnat, 'y dnat}) pad <is>
+     reverse_each | pad_rev | reverse_each; 
+
+ ({'x dnat, 'y dnat} -> {'x dnat, 'y dnat}) pad_rev <is>
+      [
+	({'x'_,'y'_} -> $),
+	({'x'_,...} -> {'x ['0 $.x], 'y $.y}) | pad_rev,
+	({'y'_,...} -> {'x $.x, 'y ['0 $.y]}) | pad_rev,
+	(... ->
+	   {'x $.x | decompose, 
+	    'y $.y | decompose,
+	    'a {'x @x.n, 'y @y.n} | pad_rev,
+	    'r {'x {'n @a.x, 'd @x.d} | prepend_digit,
+	        'y {'n @a.y, 'd @y.d} | prepend_digit}
+		}).r
+       ];
+/*
+{'x dnat, 'y dnat} main <is> {'x '9'1'1'_, 'y '1'_} | pad;
+*/
+
+/* x and y have to be padded */
+({'x dnat, 'y dnat} -> {}) x-le-y <is>
+     [ ({'x'_,'y'_} -> {}),
+       (... -> 
+       	    {'a $.x | decompose, 
+	     'b $.y | decompose,
+	     'r [
+		  {'x @a.d, 'y @b.d} | x<y,
+		  {'x @a.d, 'y @b.d} | x=y | {'x @a.n, 'y @b.n} | x-le-y
+		]}.r)
+     ];
+/*       
+main <is> {'x '1'2'3'2'0'_, 'y'3'2'1'3'2'_} | pad | x-le-y;
+*/

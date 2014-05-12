@@ -1,0 +1,1336 @@
+   0  $accept : %entry% $end
+
+   1  input_with_eof : input EOF
+
+   2  input :
+   3        | input TYPE NAME IS typeExp SC
+   4        | input LP typeExp ARROW typeExp RP NAME IS iExp SC
+   5        | input typeExp NAME IS iExp SC
+   6        | input NAME IS iExp SC
+   7        | input NAME IS INPUT SC
+   8        | input NAME IS OUTPUT SC
+   9        | input typeExp NAME IS INPUT SC
+  10        | input LP typeExp ARROW typeExp RP NAME IS INPUT SC
+  11        | input LP typeExp ARROW typeExp RP NAME IS OUTPUT SC
+  12        | input error
+
+  13  iExp : LC list_of_label_inv concat_RC
+  14       | LB list_of_inv priority_order_RB
+  15       | LP DOLLAR NAME non_empty_list_of_patExp ARROW iExp RP
+  16       | LP non_empty_list_of_patExp ARROW iExp RP
+  17       | iExp DOT NAME
+  18       | QUOTE NAME iExp
+  19       | QUOTE NAME
+  20       | iExp COMPOSE iExp
+  21       | DOLLAR NAME
+  22       | DOLLAR
+  23       | AT NAME
+  24       | NAME
+
+  25  priority_order_RB : RB
+  26                    | UNKNOWN RB
+  27                    | LONGEST NAME priority_order_RB
+  28                    | SHORTEST NAME priority_order_RB
+
+  29  concat_RC : RC
+  30            | CONCAT NAME concat_RC
+
+  31  list_of_label_inv :
+  32                    | non_empty_list_of_label_inv
+
+  33  non_empty_list_of_label_inv : QUOTE NAME
+  34                              | QUOTE NAME iExp
+  35                              | QUOTE NAME COMMA non_empty_list_of_label_inv
+  36                              | QUOTE NAME iExp COMMA non_empty_list_of_label_inv
+
+  37  list_of_inv :
+  38              | non_empty_list_of_inv
+
+  39  non_empty_list_of_inv : iExp
+  40                        | iExp COMMA non_empty_list_of_inv
+
+  41  non_empty_list_of_patExp : patExp
+  42                           | patExp COMMA non_empty_list_of_patExp
+
+  43  patExp : ANY
+  44         | NAME
+  45         | LB list_of_label_type RB
+  46         | QUOTE NAME patExp
+  47         | QUOTE NAME
+  48         | LC list_of_label_pat RC
+
+  49  list_of_label_pat :
+  50                    | non_empty_list_of_label_pat
+
+  51  non_empty_list_of_label_pat : ANY
+  52                              | QUOTE NAME
+  53                              | QUOTE NAME patExp
+  54                              | ANY COMMA non_empty_list_of_label_pat
+  55                              | QUOTE NAME COMMA non_empty_list_of_label_pat
+  56                              | QUOTE NAME patExp COMMA non_empty_list_of_label_pat
+
+  57  typeExp : NAME
+  58          | LB list_of_label_type RB
+  59          | LC list_of_label_type RC
+
+  60  list_of_label_type :
+  61                     | non_empty_list_of_label_type
+
+  62  non_empty_list_of_label_type : QUOTE NAME
+  63                               | QUOTE NAME typeExp
+  64                               | QUOTE NAME COMMA non_empty_list_of_label_type
+  65                               | QUOTE NAME typeExp COMMA non_empty_list_of_label_type
+
+  66  %entry% : '\001' input_with_eof
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . input_with_eof  (66)
+	input : .  (2)
+
+	.  reduce 2
+
+	input_with_eof  goto 3
+	input  goto 4
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	%entry% : '\001' input_with_eof .  (66)
+
+	.  reduce 66
+
+
+state 4
+	input_with_eof : input . EOF  (1)
+	input : input . TYPE NAME IS typeExp SC  (3)
+	input : input . LP typeExp ARROW typeExp RP NAME IS iExp SC  (4)
+	input : input . typeExp NAME IS iExp SC  (5)
+	input : input . NAME IS iExp SC  (6)
+	input : input . NAME IS INPUT SC  (7)
+	input : input . NAME IS OUTPUT SC  (8)
+	input : input . typeExp NAME IS INPUT SC  (9)
+	input : input . LP typeExp ARROW typeExp RP NAME IS INPUT SC  (10)
+	input : input . LP typeExp ARROW typeExp RP NAME IS OUTPUT SC  (11)
+	input : input . error  (12)
+
+	error  shift 5
+	NAME  shift 6
+	LC  shift 7
+	LB  shift 8
+	LP  shift 9
+	TYPE  shift 10
+	EOF  shift 11
+	.  error
+
+	typeExp  goto 12
+
+
+state 5
+	input : input error .  (12)
+
+	.  reduce 12
+
+
+state 6
+	input : input NAME . IS iExp SC  (6)
+	input : input NAME . IS INPUT SC  (7)
+	input : input NAME . IS OUTPUT SC  (8)
+	typeExp : NAME .  (57)
+
+	IS  shift 13
+	NAME  reduce 57
+
+
+state 7
+	typeExp : LC . list_of_label_type RC  (59)
+	list_of_label_type : .  (60)
+
+	QUOTE  shift 14
+	RC  reduce 60
+
+	list_of_label_type  goto 15
+	non_empty_list_of_label_type  goto 16
+
+
+state 8
+	typeExp : LB . list_of_label_type RB  (58)
+	list_of_label_type : .  (60)
+
+	QUOTE  shift 14
+	RB  reduce 60
+
+	list_of_label_type  goto 17
+	non_empty_list_of_label_type  goto 16
+
+
+state 9
+	input : input LP . typeExp ARROW typeExp RP NAME IS iExp SC  (4)
+	input : input LP . typeExp ARROW typeExp RP NAME IS INPUT SC  (10)
+	input : input LP . typeExp ARROW typeExp RP NAME IS OUTPUT SC  (11)
+
+	NAME  shift 18
+	LC  shift 7
+	LB  shift 8
+	.  error
+
+	typeExp  goto 19
+
+
+state 10
+	input : input TYPE . NAME IS typeExp SC  (3)
+
+	NAME  shift 20
+	.  error
+
+
+state 11
+	input_with_eof : input EOF .  (1)
+
+	.  reduce 1
+
+
+state 12
+	input : input typeExp . NAME IS iExp SC  (5)
+	input : input typeExp . NAME IS INPUT SC  (9)
+
+	NAME  shift 21
+	.  error
+
+
+state 13
+	input : input NAME IS . iExp SC  (6)
+	input : input NAME IS . INPUT SC  (7)
+	input : input NAME IS . OUTPUT SC  (8)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	AT  shift 27
+	QUOTE  shift 28
+	INPUT  shift 29
+	OUTPUT  shift 30
+	.  error
+
+	iExp  goto 31
+
+
+state 14
+	non_empty_list_of_label_type : QUOTE . NAME  (62)
+	non_empty_list_of_label_type : QUOTE . NAME typeExp  (63)
+	non_empty_list_of_label_type : QUOTE . NAME COMMA non_empty_list_of_label_type  (64)
+	non_empty_list_of_label_type : QUOTE . NAME typeExp COMMA non_empty_list_of_label_type  (65)
+
+	NAME  shift 32
+	.  error
+
+
+state 15
+	typeExp : LC list_of_label_type . RC  (59)
+
+	RC  shift 33
+	.  error
+
+
+state 16
+	list_of_label_type : non_empty_list_of_label_type .  (61)
+
+	.  reduce 61
+
+
+state 17
+	typeExp : LB list_of_label_type . RB  (58)
+
+	RB  shift 34
+	.  error
+
+
+state 18
+	typeExp : NAME .  (57)
+
+	.  reduce 57
+
+
+state 19
+	input : input LP typeExp . ARROW typeExp RP NAME IS iExp SC  (4)
+	input : input LP typeExp . ARROW typeExp RP NAME IS INPUT SC  (10)
+	input : input LP typeExp . ARROW typeExp RP NAME IS OUTPUT SC  (11)
+
+	ARROW  shift 35
+	.  error
+
+
+state 20
+	input : input TYPE NAME . IS typeExp SC  (3)
+
+	IS  shift 36
+	.  error
+
+
+state 21
+	input : input typeExp NAME . IS iExp SC  (5)
+	input : input typeExp NAME . IS INPUT SC  (9)
+
+	IS  shift 37
+	.  error
+
+
+state 22
+	iExp : NAME .  (24)
+
+	.  reduce 24
+
+
+state 23
+	iExp : LC . list_of_label_inv concat_RC  (13)
+	list_of_label_inv : .  (31)
+
+	QUOTE  shift 38
+	RC  reduce 31
+	CONCAT  reduce 31
+
+	list_of_label_inv  goto 39
+	non_empty_list_of_label_inv  goto 40
+
+
+state 24
+	iExp : LB . list_of_inv priority_order_RB  (14)
+	list_of_inv : .  (37)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	AT  shift 27
+	QUOTE  shift 28
+	RB  reduce 37
+	SHORTEST  reduce 37
+	LONGEST  reduce 37
+	UNKNOWN  reduce 37
+
+	iExp  goto 41
+	non_empty_list_of_inv  goto 42
+	list_of_inv  goto 43
+
+
+state 25
+	iExp : LP . DOLLAR NAME non_empty_list_of_patExp ARROW iExp RP  (15)
+	iExp : LP . non_empty_list_of_patExp ARROW iExp RP  (16)
+
+	NAME  shift 44
+	LC  shift 45
+	LB  shift 46
+	DOLLAR  shift 47
+	ANY  shift 48
+	QUOTE  shift 49
+	.  error
+
+	patExp  goto 50
+	non_empty_list_of_patExp  goto 51
+
+
+state 26
+	iExp : DOLLAR . NAME  (21)
+	iExp : DOLLAR .  (22)
+
+	NAME  shift 52
+	COMPOSE  reduce 22
+	RP  reduce 22
+	RB  reduce 22
+	RC  reduce 22
+	SC  reduce 22
+	COMMA  reduce 22
+	DOT  reduce 22
+	SHORTEST  reduce 22
+	LONGEST  reduce 22
+	UNKNOWN  reduce 22
+	CONCAT  reduce 22
+
+
+state 27
+	iExp : AT . NAME  (23)
+
+	NAME  shift 53
+	.  error
+
+
+state 28
+	iExp : QUOTE . NAME iExp  (18)
+	iExp : QUOTE . NAME  (19)
+
+	NAME  shift 54
+	.  error
+
+
+state 29
+	input : input NAME IS INPUT . SC  (7)
+
+	SC  shift 55
+	.  error
+
+
+state 30
+	input : input NAME IS OUTPUT . SC  (8)
+
+	SC  shift 56
+	.  error
+
+
+state 31
+	input : input NAME IS iExp . SC  (6)
+	iExp : iExp . DOT NAME  (17)
+	iExp : iExp . COMPOSE iExp  (20)
+
+	COMPOSE  shift 57
+	SC  shift 58
+	DOT  shift 59
+	.  error
+
+
+state 32
+	non_empty_list_of_label_type : QUOTE NAME .  (62)
+	non_empty_list_of_label_type : QUOTE NAME . typeExp  (63)
+	non_empty_list_of_label_type : QUOTE NAME . COMMA non_empty_list_of_label_type  (64)
+	non_empty_list_of_label_type : QUOTE NAME . typeExp COMMA non_empty_list_of_label_type  (65)
+
+	NAME  shift 18
+	LC  shift 7
+	LB  shift 8
+	COMMA  shift 60
+	RB  reduce 62
+	RC  reduce 62
+
+	typeExp  goto 61
+
+
+state 33
+	typeExp : LC list_of_label_type RC .  (59)
+
+	.  reduce 59
+
+
+state 34
+	typeExp : LB list_of_label_type RB .  (58)
+
+	.  reduce 58
+
+
+state 35
+	input : input LP typeExp ARROW . typeExp RP NAME IS iExp SC  (4)
+	input : input LP typeExp ARROW . typeExp RP NAME IS INPUT SC  (10)
+	input : input LP typeExp ARROW . typeExp RP NAME IS OUTPUT SC  (11)
+
+	NAME  shift 18
+	LC  shift 7
+	LB  shift 8
+	.  error
+
+	typeExp  goto 62
+
+
+state 36
+	input : input TYPE NAME IS . typeExp SC  (3)
+
+	NAME  shift 18
+	LC  shift 7
+	LB  shift 8
+	.  error
+
+	typeExp  goto 63
+
+
+state 37
+	input : input typeExp NAME IS . iExp SC  (5)
+	input : input typeExp NAME IS . INPUT SC  (9)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	AT  shift 27
+	QUOTE  shift 28
+	INPUT  shift 64
+	.  error
+
+	iExp  goto 65
+
+
+state 38
+	non_empty_list_of_label_inv : QUOTE . NAME  (33)
+	non_empty_list_of_label_inv : QUOTE . NAME iExp  (34)
+	non_empty_list_of_label_inv : QUOTE . NAME COMMA non_empty_list_of_label_inv  (35)
+	non_empty_list_of_label_inv : QUOTE . NAME iExp COMMA non_empty_list_of_label_inv  (36)
+
+	NAME  shift 66
+	.  error
+
+
+state 39
+	iExp : LC list_of_label_inv . concat_RC  (13)
+
+	RC  shift 67
+	CONCAT  shift 68
+	.  error
+
+	concat_RC  goto 69
+
+
+state 40
+	list_of_label_inv : non_empty_list_of_label_inv .  (32)
+
+	.  reduce 32
+
+
+state 41
+	iExp : iExp . DOT NAME  (17)
+	iExp : iExp . COMPOSE iExp  (20)
+	non_empty_list_of_inv : iExp .  (39)
+	non_empty_list_of_inv : iExp . COMMA non_empty_list_of_inv  (40)
+
+	COMPOSE  shift 57
+	COMMA  shift 70
+	DOT  shift 59
+	RB  reduce 39
+	SHORTEST  reduce 39
+	LONGEST  reduce 39
+	UNKNOWN  reduce 39
+
+
+state 42
+	list_of_inv : non_empty_list_of_inv .  (38)
+
+	.  reduce 38
+
+
+state 43
+	iExp : LB list_of_inv . priority_order_RB  (14)
+
+	RB  shift 71
+	SHORTEST  shift 72
+	LONGEST  shift 73
+	UNKNOWN  shift 74
+	.  error
+
+	priority_order_RB  goto 75
+
+
+state 44
+	patExp : NAME .  (44)
+
+	.  reduce 44
+
+
+state 45
+	patExp : LC . list_of_label_pat RC  (48)
+	list_of_label_pat : .  (49)
+
+	ANY  shift 76
+	QUOTE  shift 77
+	RC  reduce 49
+
+	list_of_label_pat  goto 78
+	non_empty_list_of_label_pat  goto 79
+
+
+state 46
+	patExp : LB . list_of_label_type RB  (45)
+	list_of_label_type : .  (60)
+
+	QUOTE  shift 14
+	RB  reduce 60
+
+	list_of_label_type  goto 80
+	non_empty_list_of_label_type  goto 16
+
+
+state 47
+	iExp : LP DOLLAR . NAME non_empty_list_of_patExp ARROW iExp RP  (15)
+
+	NAME  shift 81
+	.  error
+
+
+state 48
+	patExp : ANY .  (43)
+
+	.  reduce 43
+
+
+state 49
+	patExp : QUOTE . NAME patExp  (46)
+	patExp : QUOTE . NAME  (47)
+
+	NAME  shift 82
+	.  error
+
+
+state 50
+	non_empty_list_of_patExp : patExp .  (41)
+	non_empty_list_of_patExp : patExp . COMMA non_empty_list_of_patExp  (42)
+
+	COMMA  shift 83
+	ARROW  reduce 41
+
+
+state 51
+	iExp : LP non_empty_list_of_patExp . ARROW iExp RP  (16)
+
+	ARROW  shift 84
+	.  error
+
+
+state 52
+	iExp : DOLLAR NAME .  (21)
+
+	.  reduce 21
+
+
+state 53
+	iExp : AT NAME .  (23)
+
+	.  reduce 23
+
+
+state 54
+	iExp : QUOTE NAME . iExp  (18)
+	iExp : QUOTE NAME .  (19)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	AT  shift 27
+	QUOTE  shift 28
+	COMPOSE  reduce 19
+	RP  reduce 19
+	RB  reduce 19
+	RC  reduce 19
+	SC  reduce 19
+	COMMA  reduce 19
+	DOT  reduce 19
+	SHORTEST  reduce 19
+	LONGEST  reduce 19
+	UNKNOWN  reduce 19
+	CONCAT  reduce 19
+
+	iExp  goto 85
+
+
+state 55
+	input : input NAME IS INPUT SC .  (7)
+
+	.  reduce 7
+
+
+state 56
+	input : input NAME IS OUTPUT SC .  (8)
+
+	.  reduce 8
+
+
+state 57
+	iExp : iExp COMPOSE . iExp  (20)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	AT  shift 27
+	QUOTE  shift 28
+	.  error
+
+	iExp  goto 86
+
+
+state 58
+	input : input NAME IS iExp SC .  (6)
+
+	.  reduce 6
+
+
+state 59
+	iExp : iExp DOT . NAME  (17)
+
+	NAME  shift 87
+	.  error
+
+
+state 60
+	non_empty_list_of_label_type : QUOTE NAME COMMA . non_empty_list_of_label_type  (64)
+
+	QUOTE  shift 14
+	.  error
+
+	non_empty_list_of_label_type  goto 88
+
+
+state 61
+	non_empty_list_of_label_type : QUOTE NAME typeExp .  (63)
+	non_empty_list_of_label_type : QUOTE NAME typeExp . COMMA non_empty_list_of_label_type  (65)
+
+	COMMA  shift 89
+	RB  reduce 63
+	RC  reduce 63
+
+
+state 62
+	input : input LP typeExp ARROW typeExp . RP NAME IS iExp SC  (4)
+	input : input LP typeExp ARROW typeExp . RP NAME IS INPUT SC  (10)
+	input : input LP typeExp ARROW typeExp . RP NAME IS OUTPUT SC  (11)
+
+	RP  shift 90
+	.  error
+
+
+state 63
+	input : input TYPE NAME IS typeExp . SC  (3)
+
+	SC  shift 91
+	.  error
+
+
+state 64
+	input : input typeExp NAME IS INPUT . SC  (9)
+
+	SC  shift 92
+	.  error
+
+
+state 65
+	input : input typeExp NAME IS iExp . SC  (5)
+	iExp : iExp . DOT NAME  (17)
+	iExp : iExp . COMPOSE iExp  (20)
+
+	COMPOSE  shift 57
+	SC  shift 93
+	DOT  shift 59
+	.  error
+
+
+state 66
+	non_empty_list_of_label_inv : QUOTE NAME .  (33)
+	non_empty_list_of_label_inv : QUOTE NAME . iExp  (34)
+	non_empty_list_of_label_inv : QUOTE NAME . COMMA non_empty_list_of_label_inv  (35)
+	non_empty_list_of_label_inv : QUOTE NAME . iExp COMMA non_empty_list_of_label_inv  (36)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	COMMA  shift 94
+	AT  shift 27
+	QUOTE  shift 28
+	RC  reduce 33
+	CONCAT  reduce 33
+
+	iExp  goto 95
+
+
+state 67
+	concat_RC : RC .  (29)
+
+	.  reduce 29
+
+
+state 68
+	concat_RC : CONCAT . NAME concat_RC  (30)
+
+	NAME  shift 96
+	.  error
+
+
+state 69
+	iExp : LC list_of_label_inv concat_RC .  (13)
+
+	.  reduce 13
+
+
+state 70
+	non_empty_list_of_inv : iExp COMMA . non_empty_list_of_inv  (40)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	AT  shift 27
+	QUOTE  shift 28
+	.  error
+
+	iExp  goto 41
+	non_empty_list_of_inv  goto 97
+
+
+state 71
+	priority_order_RB : RB .  (25)
+
+	.  reduce 25
+
+
+state 72
+	priority_order_RB : SHORTEST . NAME priority_order_RB  (28)
+
+	NAME  shift 98
+	.  error
+
+
+state 73
+	priority_order_RB : LONGEST . NAME priority_order_RB  (27)
+
+	NAME  shift 99
+	.  error
+
+
+state 74
+	priority_order_RB : UNKNOWN . RB  (26)
+
+	RB  shift 100
+	.  error
+
+
+state 75
+	iExp : LB list_of_inv priority_order_RB .  (14)
+
+	.  reduce 14
+
+
+state 76
+	non_empty_list_of_label_pat : ANY .  (51)
+	non_empty_list_of_label_pat : ANY . COMMA non_empty_list_of_label_pat  (54)
+
+	COMMA  shift 101
+	RC  reduce 51
+
+
+state 77
+	non_empty_list_of_label_pat : QUOTE . NAME  (52)
+	non_empty_list_of_label_pat : QUOTE . NAME patExp  (53)
+	non_empty_list_of_label_pat : QUOTE . NAME COMMA non_empty_list_of_label_pat  (55)
+	non_empty_list_of_label_pat : QUOTE . NAME patExp COMMA non_empty_list_of_label_pat  (56)
+
+	NAME  shift 102
+	.  error
+
+
+state 78
+	patExp : LC list_of_label_pat . RC  (48)
+
+	RC  shift 103
+	.  error
+
+
+state 79
+	list_of_label_pat : non_empty_list_of_label_pat .  (50)
+
+	.  reduce 50
+
+
+state 80
+	patExp : LB list_of_label_type . RB  (45)
+
+	RB  shift 104
+	.  error
+
+
+state 81
+	iExp : LP DOLLAR NAME . non_empty_list_of_patExp ARROW iExp RP  (15)
+
+	NAME  shift 44
+	LC  shift 45
+	LB  shift 46
+	ANY  shift 48
+	QUOTE  shift 49
+	.  error
+
+	patExp  goto 50
+	non_empty_list_of_patExp  goto 105
+
+
+state 82
+	patExp : QUOTE NAME . patExp  (46)
+	patExp : QUOTE NAME .  (47)
+
+	NAME  shift 44
+	LC  shift 45
+	LB  shift 46
+	ANY  shift 48
+	QUOTE  shift 49
+	RC  reduce 47
+	ARROW  reduce 47
+	COMMA  reduce 47
+
+	patExp  goto 106
+
+
+state 83
+	non_empty_list_of_patExp : patExp COMMA . non_empty_list_of_patExp  (42)
+
+	NAME  shift 44
+	LC  shift 45
+	LB  shift 46
+	ANY  shift 48
+	QUOTE  shift 49
+	.  error
+
+	patExp  goto 50
+	non_empty_list_of_patExp  goto 107
+
+
+state 84
+	iExp : LP non_empty_list_of_patExp ARROW . iExp RP  (16)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	AT  shift 27
+	QUOTE  shift 28
+	.  error
+
+	iExp  goto 108
+
+
+state 85
+	iExp : iExp . DOT NAME  (17)
+	iExp : QUOTE NAME iExp .  (18)
+	iExp : iExp . COMPOSE iExp  (20)
+
+	DOT  shift 59
+	COMPOSE  reduce 18
+	RP  reduce 18
+	RB  reduce 18
+	RC  reduce 18
+	SC  reduce 18
+	COMMA  reduce 18
+	SHORTEST  reduce 18
+	LONGEST  reduce 18
+	UNKNOWN  reduce 18
+	CONCAT  reduce 18
+
+
+state 86
+	iExp : iExp . DOT NAME  (17)
+	iExp : iExp . COMPOSE iExp  (20)
+	iExp : iExp COMPOSE iExp .  (20)
+
+	DOT  shift 59
+	COMPOSE  reduce 20
+	RP  reduce 20
+	RB  reduce 20
+	RC  reduce 20
+	SC  reduce 20
+	COMMA  reduce 20
+	SHORTEST  reduce 20
+	LONGEST  reduce 20
+	UNKNOWN  reduce 20
+	CONCAT  reduce 20
+
+
+state 87
+	iExp : iExp DOT NAME .  (17)
+
+	.  reduce 17
+
+
+state 88
+	non_empty_list_of_label_type : QUOTE NAME COMMA non_empty_list_of_label_type .  (64)
+
+	.  reduce 64
+
+
+state 89
+	non_empty_list_of_label_type : QUOTE NAME typeExp COMMA . non_empty_list_of_label_type  (65)
+
+	QUOTE  shift 14
+	.  error
+
+	non_empty_list_of_label_type  goto 109
+
+
+state 90
+	input : input LP typeExp ARROW typeExp RP . NAME IS iExp SC  (4)
+	input : input LP typeExp ARROW typeExp RP . NAME IS INPUT SC  (10)
+	input : input LP typeExp ARROW typeExp RP . NAME IS OUTPUT SC  (11)
+
+	NAME  shift 110
+	.  error
+
+
+state 91
+	input : input TYPE NAME IS typeExp SC .  (3)
+
+	.  reduce 3
+
+
+state 92
+	input : input typeExp NAME IS INPUT SC .  (9)
+
+	.  reduce 9
+
+
+state 93
+	input : input typeExp NAME IS iExp SC .  (5)
+
+	.  reduce 5
+
+
+state 94
+	non_empty_list_of_label_inv : QUOTE NAME COMMA . non_empty_list_of_label_inv  (35)
+
+	QUOTE  shift 38
+	.  error
+
+	non_empty_list_of_label_inv  goto 111
+
+
+state 95
+	iExp : iExp . DOT NAME  (17)
+	iExp : iExp . COMPOSE iExp  (20)
+	non_empty_list_of_label_inv : QUOTE NAME iExp .  (34)
+	non_empty_list_of_label_inv : QUOTE NAME iExp . COMMA non_empty_list_of_label_inv  (36)
+
+	COMPOSE  shift 57
+	COMMA  shift 112
+	DOT  shift 59
+	RC  reduce 34
+	CONCAT  reduce 34
+
+
+state 96
+	concat_RC : CONCAT NAME . concat_RC  (30)
+
+	RC  shift 67
+	CONCAT  shift 68
+	.  error
+
+	concat_RC  goto 113
+
+
+state 97
+	non_empty_list_of_inv : iExp COMMA non_empty_list_of_inv .  (40)
+
+	.  reduce 40
+
+
+state 98
+	priority_order_RB : SHORTEST NAME . priority_order_RB  (28)
+
+	RB  shift 71
+	SHORTEST  shift 72
+	LONGEST  shift 73
+	UNKNOWN  shift 74
+	.  error
+
+	priority_order_RB  goto 114
+
+
+state 99
+	priority_order_RB : LONGEST NAME . priority_order_RB  (27)
+
+	RB  shift 71
+	SHORTEST  shift 72
+	LONGEST  shift 73
+	UNKNOWN  shift 74
+	.  error
+
+	priority_order_RB  goto 115
+
+
+state 100
+	priority_order_RB : UNKNOWN RB .  (26)
+
+	.  reduce 26
+
+
+state 101
+	non_empty_list_of_label_pat : ANY COMMA . non_empty_list_of_label_pat  (54)
+
+	ANY  shift 76
+	QUOTE  shift 77
+	.  error
+
+	non_empty_list_of_label_pat  goto 116
+
+
+state 102
+	non_empty_list_of_label_pat : QUOTE NAME .  (52)
+	non_empty_list_of_label_pat : QUOTE NAME . patExp  (53)
+	non_empty_list_of_label_pat : QUOTE NAME . COMMA non_empty_list_of_label_pat  (55)
+	non_empty_list_of_label_pat : QUOTE NAME . patExp COMMA non_empty_list_of_label_pat  (56)
+
+	NAME  shift 44
+	LC  shift 45
+	LB  shift 46
+	COMMA  shift 117
+	ANY  shift 48
+	QUOTE  shift 49
+	RC  reduce 52
+
+	patExp  goto 118
+
+
+state 103
+	patExp : LC list_of_label_pat RC .  (48)
+
+	.  reduce 48
+
+
+state 104
+	patExp : LB list_of_label_type RB .  (45)
+
+	.  reduce 45
+
+
+state 105
+	iExp : LP DOLLAR NAME non_empty_list_of_patExp . ARROW iExp RP  (15)
+
+	ARROW  shift 119
+	.  error
+
+
+state 106
+	patExp : QUOTE NAME patExp .  (46)
+
+	.  reduce 46
+
+
+state 107
+	non_empty_list_of_patExp : patExp COMMA non_empty_list_of_patExp .  (42)
+
+	.  reduce 42
+
+
+state 108
+	iExp : LP non_empty_list_of_patExp ARROW iExp . RP  (16)
+	iExp : iExp . DOT NAME  (17)
+	iExp : iExp . COMPOSE iExp  (20)
+
+	COMPOSE  shift 57
+	RP  shift 120
+	DOT  shift 59
+	.  error
+
+
+state 109
+	non_empty_list_of_label_type : QUOTE NAME typeExp COMMA non_empty_list_of_label_type .  (65)
+
+	.  reduce 65
+
+
+state 110
+	input : input LP typeExp ARROW typeExp RP NAME . IS iExp SC  (4)
+	input : input LP typeExp ARROW typeExp RP NAME . IS INPUT SC  (10)
+	input : input LP typeExp ARROW typeExp RP NAME . IS OUTPUT SC  (11)
+
+	IS  shift 121
+	.  error
+
+
+state 111
+	non_empty_list_of_label_inv : QUOTE NAME COMMA non_empty_list_of_label_inv .  (35)
+
+	.  reduce 35
+
+
+state 112
+	non_empty_list_of_label_inv : QUOTE NAME iExp COMMA . non_empty_list_of_label_inv  (36)
+
+	QUOTE  shift 38
+	.  error
+
+	non_empty_list_of_label_inv  goto 122
+
+
+state 113
+	concat_RC : CONCAT NAME concat_RC .  (30)
+
+	.  reduce 30
+
+
+state 114
+	priority_order_RB : SHORTEST NAME priority_order_RB .  (28)
+
+	.  reduce 28
+
+
+state 115
+	priority_order_RB : LONGEST NAME priority_order_RB .  (27)
+
+	.  reduce 27
+
+
+state 116
+	non_empty_list_of_label_pat : ANY COMMA non_empty_list_of_label_pat .  (54)
+
+	.  reduce 54
+
+
+state 117
+	non_empty_list_of_label_pat : QUOTE NAME COMMA . non_empty_list_of_label_pat  (55)
+
+	ANY  shift 76
+	QUOTE  shift 77
+	.  error
+
+	non_empty_list_of_label_pat  goto 123
+
+
+state 118
+	non_empty_list_of_label_pat : QUOTE NAME patExp .  (53)
+	non_empty_list_of_label_pat : QUOTE NAME patExp . COMMA non_empty_list_of_label_pat  (56)
+
+	COMMA  shift 124
+	RC  reduce 53
+
+
+state 119
+	iExp : LP DOLLAR NAME non_empty_list_of_patExp ARROW . iExp RP  (15)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	AT  shift 27
+	QUOTE  shift 28
+	.  error
+
+	iExp  goto 125
+
+
+state 120
+	iExp : LP non_empty_list_of_patExp ARROW iExp RP .  (16)
+
+	.  reduce 16
+
+
+state 121
+	input : input LP typeExp ARROW typeExp RP NAME IS . iExp SC  (4)
+	input : input LP typeExp ARROW typeExp RP NAME IS . INPUT SC  (10)
+	input : input LP typeExp ARROW typeExp RP NAME IS . OUTPUT SC  (11)
+
+	NAME  shift 22
+	LC  shift 23
+	LB  shift 24
+	LP  shift 25
+	DOLLAR  shift 26
+	AT  shift 27
+	QUOTE  shift 28
+	INPUT  shift 126
+	OUTPUT  shift 127
+	.  error
+
+	iExp  goto 128
+
+
+state 122
+	non_empty_list_of_label_inv : QUOTE NAME iExp COMMA non_empty_list_of_label_inv .  (36)
+
+	.  reduce 36
+
+
+state 123
+	non_empty_list_of_label_pat : QUOTE NAME COMMA non_empty_list_of_label_pat .  (55)
+
+	.  reduce 55
+
+
+state 124
+	non_empty_list_of_label_pat : QUOTE NAME patExp COMMA . non_empty_list_of_label_pat  (56)
+
+	ANY  shift 76
+	QUOTE  shift 77
+	.  error
+
+	non_empty_list_of_label_pat  goto 129
+
+
+state 125
+	iExp : LP DOLLAR NAME non_empty_list_of_patExp ARROW iExp . RP  (15)
+	iExp : iExp . DOT NAME  (17)
+	iExp : iExp . COMPOSE iExp  (20)
+
+	COMPOSE  shift 57
+	RP  shift 130
+	DOT  shift 59
+	.  error
+
+
+state 126
+	input : input LP typeExp ARROW typeExp RP NAME IS INPUT . SC  (10)
+
+	SC  shift 131
+	.  error
+
+
+state 127
+	input : input LP typeExp ARROW typeExp RP NAME IS OUTPUT . SC  (11)
+
+	SC  shift 132
+	.  error
+
+
+state 128
+	input : input LP typeExp ARROW typeExp RP NAME IS iExp . SC  (4)
+	iExp : iExp . DOT NAME  (17)
+	iExp : iExp . COMPOSE iExp  (20)
+
+	COMPOSE  shift 57
+	SC  shift 133
+	DOT  shift 59
+	.  error
+
+
+state 129
+	non_empty_list_of_label_pat : QUOTE NAME patExp COMMA non_empty_list_of_label_pat .  (56)
+
+	.  reduce 56
+
+
+state 130
+	iExp : LP DOLLAR NAME non_empty_list_of_patExp ARROW iExp RP .  (15)
+
+	.  reduce 15
+
+
+state 131
+	input : input LP typeExp ARROW typeExp RP NAME IS INPUT SC .  (10)
+
+	.  reduce 10
+
+
+state 132
+	input : input LP typeExp ARROW typeExp RP NAME IS OUTPUT SC .  (11)
+
+	.  reduce 11
+
+
+state 133
+	input : input LP typeExp ARROW typeExp RP NAME IS iExp SC .  (4)
+
+	.  reduce 4
+
+
+28 terminals, 18 nonterminals
+67 grammar rules, 134 states

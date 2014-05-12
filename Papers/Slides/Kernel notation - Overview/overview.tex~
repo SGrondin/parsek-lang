@@ -1,0 +1,327 @@
+\documentclass[utf8]{beamer}
+
+\usetheme{split}
+\setbeamercovered{dynamic}
+
+\newcommand{\out}[1]{}
+\newcommand{\df}[1]{\stackrel{\mathtt{def}}{#1}}
+\newcommand{\fleche}[1]{\displaystyle \mathop {\mbox{\rightarrowfill}}^{#1} }
+\newcommand{\Kernel}{\textit{Kernel}}
+
+
+%\newcommand{\mypause}{}
+\newcommand{\mypause}{\pause}
+
+\title[\Kernel{} Notation]{\Kernel{}: functional notation for system description}
+
+\author{Wojciech Fraczak}
+
+\institute{ 
+  Dépt d'informatique, Université du Québec en Outaouais, 
+  Gatineau PQ, Canada 
+}
+
+\date[]{}
+
+\begin{document}
+\begin{frame}
+  \maketitle
+\end{frame}
+
+
+\section{Introduction}
+\subsection{Introduction}
+\begin{frame}
+  \frametitle{Introduction}
+  \begin{itemize}
+  \item \Kernel{} is a notation for describing computer systems \mypause
+  \item \Kernel{} is both a programing language which can be compiled
+    into a highly optimized machine code, and a specification language
+    for modeling and verification purposes \mypause
+  \item Main features unique to \Kernel{} are:
+    \begin{itemize}
+    \item the uniform and minimalistic syntax; 
+    \item precise mathematical semantics in terms of relations;
+    \item execution model (virtual machine) in terms of FIFO system.
+%    \item composition instead of ``function call'';
+%    \item interchangeable nature of behavioral and functional aspects of
+%      system components.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\subsection{History and motivation}
+
+\begin{frame}
+  \frametitle{History and motivation}
+  \begin{itemize}
+  \item[1] My Solidum/IDT Canada experience: PDL/PTL (Packet Description/Transformation Language)
+    \begin{itemize}
+    \item for programming one-state push-down automaton implemented in hardware
+    \end{itemize} \mypause
+  \item[2] Edgewater: RTEdge --- a real-time programming language
+    with integrated verifier for ``meeting deadlines''
+    \mypause
+  \item In both cases the proprietary languages were needed even
+    though hundreds of programming languages had already existed...
+    \mypause
+  \item \Kernel{} aims to become a common notation easily extensible
+    ... to meet PTL or RTEdge requirements, for example.
+  \end{itemize}
+\end{frame}
+
+\subsection{What Kernel is for...}
+
+\begin{frame}
+  \frametitle{What \Kernel{} is not...}
+  \begin{itemize}
+  \item \Kernel{} is not a full featured general purpose programming
+    language for IT professionals ...
+
+    {\small Even though one could use \Kernel{} to develop a Web site or a
+    flashy graphical user interface, the notation was not designed for
+    it ... }
+
+\mypause
+  \item You may be interested in \Kernel{} if you want your program to
+    be \textcolor{red}{\bf provably}:
+    \begin{itemize}
+    \item fast,
+    \item resource efficient, and/or
+    \item correct.
+    \end{itemize}
+
+  \end{itemize}
+\end{frame}
+
+\section{Overview of the approach}
+
+\begin{frame} 
+  \frametitle{Overview of the approach}
+  \begin{center}
+    \input{schema.pstex_t}
+  \end{center}
+\end{frame}
+
+\section{Outline of the talk}
+
+\begin{frame} 
+  \frametitle{Outline of the talk}
+  \begin{enumerate}
+  \item Short introduction to \Kernel{} notation
+  \item How do we compile a \Kernel{} program into FIFO system 
+  \item Verification by \emph{over-approximations} 
+  \end{enumerate}
+
+  \hfill \input{schema-talk.pstex_t}
+\end{frame}
+
+\section{Introduction to Kernel notation}
+
+\subsection{Values as rooted trees}
+\begin{frame}[fragile]
+  \frametitle{Flat (printable) types, values, and patterns}
+    \textcolor{red}{\texttt{<type> nat <is> ['0 \{\}, '1 nat ];}}
+  \begin{center}
+    \input{nat.pstex_t}      
+  \end{center} \mypause 
+{\footnotesize Values: \verb+'0+,~ \verb+'1'0+,~
+  \verb+'1'1'0+,~ \verb+'1'1'1'0+, ...\mypause, are \emph{trees}!}\\[0.4cm]
+
+  \mypause 
+
+  A \Kernel{} type is:
+  \begin{itemize}
+  \item a set of values (finite tree automata = and-or graphs),
+  \item a set of constructors (field names), and
+  \item a set of \emph{patterns} (initial parts of values).
+  \end{itemize}
+\end{frame}
+
+\subsection{Relations}
+\begin{frame}
+  \frametitle{\Kernel{} components are \emph{relations}}
+  \begin{center}
+    \input{relation.pstex_t}
+  \end{center}
+  Every non-recursive \Kernel{} component can be translated into one
+  (possibly very big) state machine.
+\end{frame}
+
+\subsection{Syntax}
+
+\begin{frame}[fragile]
+\frametitle{\Kernel{} syntax by example}
+\footnotesize \mypause
+\verb+<type> nat <is> ['0, '1 nat ];       -- (recursive) variant type+\\[-0.06cm] \mypause
+\verb+<type> pair <is> {'x nat, 'y nat};   -- record type+\\[0.1cm]\mypause
+\verb+(pair -> pair) swap = (pair -> {'x $.y, 'y $.x});+ \\[0.1cm] \mypause
+\verb+({} -> nat) get_nat;                 -- FIFO+\\[0.1cm]\mypause
+\verb+({} -> pair) get_pair = {'x get_nat, 'y get_nat} <by> CONCAT; +\\[0.1cm] \mypause
+\verb+(pair -> nat) x-y = +\\[-0.06cm]
+\verb+   [ ({'x ..., 'y '0 } -> $.x), +\\[-0.06cm]
+\verb+     ({'x '1 ..., 'y ... } -> {'x $.x.1, 'y $.y.1}) :: x-y +\\[-0.06cm]
+\verb+   ] <by> FIRST_MATCH; + \\[0.1cm]\mypause
+\verb+(pair -> nat) y-x = swap :: x-y; +\\[0.1cm] \mypause
+\verb+({} -> nat) main = +\\[-0.06cm]
+\verb+ [ {'y get_nat, 'x '1 @y} :: x-y, +\\[-0.06cm]
+\verb+   get_nat, +\\[-0.06cm]
+\verb+   get_pair :: x-y  +\\[-0.06cm]
+\verb+   <longest> /* <shortest>, <unknown> */ get_nat +\\[-0.1cm]
+\verb+ ]; +
+\end{frame}
+
+
+\section{Compilation}
+
+
+
+\subsection{Building state machines} 
+\begin{frame}
+  \frametitle{Building state machines}
+  Every construction in \Kernel{} is an operation of \emph{relations}.
+  \begin{itemize}
+  \item \textbf{Pattern matching} \mypause
+    \begin{itemize}
+    \item Every pattern corresponds to a regular tree language encoded
+      by a ``simple language'' (one state push-down automaton).
+    \item Regular tree languages are closed by union, intersection, and complement.
+    \end{itemize} 
+    \mypause
+  \item \textbf{Product}, \textbf{Union}, and \textbf{Composition}
+    \mypause are variations of composition of relations - realized by
+    corresponding state products
+    \mypause
+  \item \textbf{Projection}  is relabeling
+  \item ...
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+ \frametitle{An example...}
+\begin{itemize}
+\item Pattern \texttt{\{'x ..., 'y '0\}} of type \texttt{pair}:
+  \[(x/x)(1/1)^{\ast}(0/0)(y/y)(0/0)\] \mypause
+
+\item Projection $\texttt{\$.x}$ over argument of type \texttt{pair}:
+  \[(x/)(1/1)^{\ast}(0/0)(y/)(1/)^{\ast}(0/)\] \mypause
+
+\item Abstraction:
+\[
+  \underbrace{(\underbrace{\{\texttt{'x ..., 'y '0}\}}_{(x/x)(1/1)^{\ast}(0/0)(y/y)(0/0)} \rightarrow 
+   \underbrace{\texttt{\$.x}}_{(x/)(1/1)^{\ast}(0/0)(y/)(1/)^{\ast}(0/)})}_{(x/)(1/1)^{\ast}(0/0)(y/)(0/)}
+\]
+\end{itemize}
+\end{frame}
+
+\subsection{FIFO system}
+\begin{frame}
+  \frametitle{FIFO system}
+  \begin{itemize}
+  \item A FIFO system is a network of finite state machines connected
+    by point-to-point FIFO channels. \mypause
+  \item Since FIFOs are unbounded, even a single state machine with a
+    couple of FIFOs is Turing Machine equivalent. \mypause
+  \item Advantages of FIFO virtual machine representation are:
+    \begin{itemize}
+    \item simple and easy to implement \mypause 
+    \item admits distributed implementation \mypause
+    \item friendly to formal verification via over-approximation
+    \end{itemize}
+
+  \end{itemize}
+\end{frame}
+
+\subsection{Connecting state machines into FIFO system}
+\begin{frame}
+  \frametitle{Connecting state machines into FIFO system}
+  \begin{itemize}
+  \item Finiteness of state representation of relations is not always
+     preserved, e.g., because of recursion. \mypause
+   \item We overcome the state explosion problem by constructing a
+     FIFO system instead of a single transducer. \mypause
+   \item The challenge is in constructing a ``useful'' FIFO system  
+     \mypause
+     \vfill
+   \item[] \textcolor{blue}{many different techniques may be
+       considered to build a FIFO system from a \Kernel{}
+       specification... this remains our main research topic... }
+  \end{itemize}
+
+\end{frame}
+
+
+\section{Verification}
+\subsection{Over-approximation}
+\begin{frame}
+  \frametitle{Over-approximation}
+  \begin{itemize}
+  \item In theory, a finite state FIFO system (i.e., with bounded size
+    channels) can be verified using SPIN/Promela tool set ... \mypause
+    --- however, checking if FIFO system is ``finite state'' is
+    undecidable! \mypause
+  \item Over-approximation:
+    \begin{itemize}
+    \item over-approximation of $S$ consists in adding ``executions''
+      to the system creating its ``over-approximation'' $S'$,
+      hopefully simpler to analyze \mypause
+    \item to prove that every execution of $S$ has a property $\phi$,
+      we prove that  every execution of $S'$ has the property $\phi$ \mypause
+    \item E.g., the over-approximation can be used in proving that a
+      WCRT is bounded by a ``deadline''
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+
+\subsection{Over-approximation techniques}
+\begin{frame}
+  \frametitle{Over-approximation techniques}
+  \begin{itemize}
+  \item We have considered two over-approximations of a FIFO system
+    $S$: \mypause
+    \begin{itemize}
+    \item Transformation of $S$ into a finite state machine: \mypause
+
+      It can be done by a successive elimination of FIFO channels. \mypause
+
+      \textcolor{blue}{Question: How a FIFO channel can be eliminated?}
+
+      \mypause
+    \item Transformation of $S$ into a Petri Net. \mypause
+      
+      If the FIFO channels are replaced by ``any-order'' containers
+      then without loosing any possible execution of the initial FIFO
+      system, we can replace every channel by a finite set of Places.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conclusions}
+  \begin{itemize}
+  \item We propose a simple but powerful notation for describing
+    computing systems \mypause
+  \item Semantics of the notation is expressed in terms of
+    multi-dimensional ``relations'' which can be effectively
+    implemented as a FIFO system \mypause
+  \item We mentioned two techniques which can transform FIFO system by
+    over-approximation into:
+    \begin{itemize}
+    \item a finite state machine
+    \item a Petri-Net
+    \end{itemize} 
+    \mypause
+  \item This is work in progress ... \textcolor{blue}{especially
+      meaningful FIFO system construction}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Thank you}
+
+Thank you! \mypause
+\end{frame}
+the end 
+\end{document}
+

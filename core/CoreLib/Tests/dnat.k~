@@ -1,0 +1,2 @@
+-- ../dnat.k ../digits.k
+dnat main <is> {'x '9'9'9'_, 'y'5'2'1'_} | x++y;

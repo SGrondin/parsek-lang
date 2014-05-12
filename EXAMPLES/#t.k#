@@ -1,0 +1,21 @@
+<code> bool <is> ['t,'f];
+
+({'x bool, 'y bool} -> {'x bool, 'y bool}) rev <is> (... -> {'x $.y, 'y $.x});
+
+{'x bool, 'y bool} main <is> 't | dup;
+
+
+
+<code> C <is> ['x C, 'y ];
+
+(C -> C) x_constr_C <is> (... -> 'x $);
+(C -> C) x_dest_C <is> (... -> $.x);
+C y_c <is> (... -> 'y $);
+(C -> {}) y_dest_C <is> (... -> $.y);
+
+<code> B <is> ['x C, 'y, 'z ];
+
+--(C -> B) x_constr_B <is> (... -> 'x $);
+
+{'x 
+

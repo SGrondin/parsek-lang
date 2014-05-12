@@ -1,0 +1,55 @@
+<type> digit <is> ['0,'1];
+<type> digit_list <is> ['empty, 'list {'car digit, 'cdr digit_list}];
+
+
+(digit -> digit) next_digit =
+       [('0 ->'1),('1 ->'2),('2 ->'3),('3 ->'4),('4 ->'5),
+        ('5 ->'6),('6 ->'7),('7 ->'8),('8 ->'9)];
+
+({'x digit, 'y digit} -> {}) equal_digits? =
+     ({'x '0, 'y '0},{'x '1, 'y '1},{'x '2, 'y '2},{'x '3, 'y '3},{'x '4, 'y '4},
+      {'x '5, 'y '5},{'x '6, 'y '6},{'x '7, 'y '7},{'x '8, 'y '8},{'x '9, 'y '9} 
+      -> {});
+
+({'x digit, 'y digit} -> {}) y_next_digit_for_x? =
+     (... -> {'x $.x::next_digit, 'y $.y}) :: equal_digits?
+;
+
+({'x digit, 'try digit} -> digit) find_previous = (... ->
+     [ {'x $.try, 'y $.x} ::  y_next_digit_for_x? :: $.try,
+       {'x $.x, 'try $.try :: next_digit} :: find_previous ]);
+
+
+(digit -> digit) previous_digit =
+        (... -> {'x $, 'try '0} :: find_previous);
+
+
+
+(digit_list -> digit_list) remove_leading_zeros =
+	    [('list {'car '0, ...} -> $.list.cdr :: remove_leading_zeros),
+	     (... -> $)] <by> FIRST_MATCH;
+
+({'d digit, 'l digit_list} -> digit_list) append_d_to_l =
+     [ ({'l 'empty, ...} -> 'list{'car $.d, 'cdr 'empty}),
+       (... -> 'list{'car $.l.list.car, 
+                     'cdr {'d $.d, 'l $.l.list.cdr} ::  append_d_to_l })
+     ];
+
+		     
+(digit_list -> digit_list) reverse_digit_list =
+	[ ('empty -> 'empty),
+          (... -> {'d $.list.car, 'l $.list.cdr}) :: append_d_to_l
+	];
+
+(digit_list -> digit_list) inc_digit_list =
+	    remove_leading_zeros :: reverse_digit_list :: 
+	    [('empty -> 'list{'car'1,'cdr'empty}),
+	     ('list{'car '9,...} -> 'list{'car'0,'cdr $.list.cdr :: inc_digit_list}),
+	     (... -> 'list{'car $.list.car :: next_digit,
+                           'cdr $.list.cdr})
+	    ] <by> FIRST_MATCH
+	    :: reverse_digit_list;
+
+digit_list main =
+       'list{'car'9,'cdr'list{'car'9,'cdr'empty}} :: inc_digit_list;
+

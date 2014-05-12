@@ -1,0 +1,131 @@
+/* Example of the unary encoding of natural numbers */
+
+/* A natural number (i.e., non-negative integer) can be written as a
+   sequence of '1 (ones) terminated by say '_ (underline), which in
+   Kernel corresponds to the following recursive type definition. */
+
+<type> unat <is> ['_, '1 unat ];
+
+/* few natural numbers in our encoding follow: */
+unat zero = '_;
+unat one = '1'_; 
+unat two ='1'1'_;
+unat three = '1 two; /* in our encoding the constructor '1 of "unat" 
+                        acts as the "increment"*/
+
+(unat -> ['odd, 'even]) is_it_odd_or_even  = 
+      [     
+      	odd_number :: 'odd,  
+        even_number :: 'even
+      ];
+
+
+/* The sets of all even and odd numbers could be defined as follows */
+(unat -> {}) even_number =
+    [ 
+      ('_ -> {}),                     /* zero is an even number */
+      ('1 unat -> $.1   /* dollar ($) denotes the value of the 
+      	       	      	   actual parameter and $.1 denotes the 
+			   projection of the value on the field '1, 
+			   i.e., in the case of our encoding, the value 
+			   of the parameter decremented by one.  */
+		  ::    /* this symbol denotes COMPOSITION */
+		  odd_number 
+      )                   
+];
+
+(unat -> {}) odd_number =
+    [ 
+      ('1 unat -> $.1 :: even_number) 
+];
+
+['odd, 'even] main = '1'1'1'1'_ :: which;
+
+
+
+/* Since every kernel relation is binary (takes one argument), we
+   introduce a new <type> "upair" being a pair of unat's. The type
+   will be the argument for operations "add" and "mult". */
+
+<type> upair <is> {'x unat, 'y unat};
+
+/* Addition is defined recursively, as the union (merge) of relations */
+(upair -> unat) add =
+	[ 
+	  /* if 'x = 0 and 'y is of any value (represented by "..."),
+	     then return 'y. */
+          ($arg {'x '_ , 'y ...} -> $arg.y),
+	   
+	  /* if 'x = 1 + z, then return (1 + (z + y)). Notice, that
+	     the default name of the argument is the empty string,
+	     thus we write $.y in order to refer to the field "y" of
+	     the actual argument. */
+
+          ({'x '1 ..., ...} -> '1 [{'x $.x.1, 'y $.y} :: add] )
+
+	  /* A list of relations within square brackets represents in
+	     general the union of the relations. However, we can use
+	     the square brackets around a single relation to force a
+	     particular grouping (i.e., as parenthesis). 
+
+	     An expression ['1 f :: g] is parsed as [['1 f] :: g]
+	     since label constructor binds stronger than composition.
+	     Thus, in the above definition we cannot omit the square
+	     brackets, and writing
+
+	     ({'x '1 ..., ...} -> '1 {'x $.x.1, 'y $.y} :: add )
+
+	     would result in a type mismatch error during the
+	     compilation. */
+	     
+ ];
+
+
+/* Definition of the multiplication is very similar to
+   addition. Notice that we use an anonymous type "{'x unat, 'y unat}"
+   as the argument instead of "upair". */
+
+({'x unat, 'y unat} -> unat) mult =
+	[
+          ({'x '_ , ...} -> '_),
+          ( ... -> {'x [{'x $.x.1, 'y $.y}::mult], 'y $.y}::add) 
+        ] <by> FirstMatch;
+
+	  /* The union modifier "<by> FirstMatch" indicates that if
+	     the first relation is defined for an argument than the
+	     next relation is considered as undefined for that
+	     argument. 
+	     
+	     Notice however that the modifier is not really needed
+	     since for no argument both relations are defined. */
+
+/* The definition of power of two (power2) follows */ 
+(unat -> unat) power2 = [
+               ('_ -> '1'_),
+               ('1 ... -> {'x two, 'y $.1 :: power2} :: mult)
+        ];
+           
+
+/* the following relation takes a natural number n and produces as
+   5-uplet consisting of {'x=n, 'twice=n+n, 'four_times=n+n+n+n,
+   'square=n*n, 'power=2^x} */
+
+(unat -> {'x unat, 'twice unat, 'four_times unat, 'square unat, 'power unat})
+test = ( ... ->
+           {'twice {'x $, 'y $} :: add,
+	    'x $, 	   
+      	    'four_times {'x @twice, 'y @twice} :: add,
+	      /* We refer to the value of one of the previous fields
+	         using its name prefixed by "@" */
+            'square {'x $, 'y $} :: mult,
+            'power $ :: power2});
+
+
+/* By default, the top level (starting) relation is called "main" */
+-- {'x unat, 'twice unat, 'four_times unat, 'square unat, 'power unat}
+--- main = three :: test;
+
+
+
+
+

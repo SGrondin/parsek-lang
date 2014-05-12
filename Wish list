@@ -1,0 +1,11 @@
+1. modifiers per FIFO
+
+2. identifiers (like labels) could repeat between different types!
+
+3. speedup the typing process
+
+4. add better error/warning  reporting!
+
+5. Macro language.
+
+6. Add explicite [] value.

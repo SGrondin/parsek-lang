@@ -1,0 +1,10 @@
+\frametitle {An example...}
+\[
+  (\underbrace{\{'x ..., 'y '0\}}_{(x/x)(1/1)^{\ast}(0/0)(y/y)(0/0)} -> \$.x)
+\]
+\end{center}
+\begin{itemize}
+\item Pattern \texttt{\{'x ..., 'y '0\}} corresponds to relation $(x/x)(1/1)^{\ast}(0/0)(y/y)(0/0)$
+
+
+\end{itemize}

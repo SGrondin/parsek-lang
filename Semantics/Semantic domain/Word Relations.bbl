@@ -1,0 +1,48 @@
+\begin{thebibliography}{1}
+
+\bibitem{bz-83}
+Daniel Brand and Pitro Zafiropulo.
+\newblock On communicating finite-state machines.
+\newblock {\em J. ACM}, 30(2):323--342, 1983.
+
+\bibitem{ba-81}
+J.~Dean Brock and William~B. Ackerman.
+\newblock Scenarios: A model of non-determinate computation.
+\newblock In Josep D\'{\i}az and Isidro Ramos, editors, {\em ICFPC}, volume 107
+  of {\em Lecture Notes in Computer Science}, pages 252--259. Springer, 1981.
+
+\bibitem{hk-91}
+T.~Harju and J.~Karhum\"{a}ki.
+\newblock The equivalence problem of multitape finite automata.
+\newblock {\em Theor. Comput. Sci.}, 78(2):347--355, 1991.
+
+\bibitem{josephs-92}
+Mark~B. Josephs.
+\newblock Receptive process theory.
+\newblock {\em Acta Inf.}, 29(1):17--31, 1992.
+
+\bibitem{josephs-04}
+Mark~B. Josephs.
+\newblock Models for data-flow sequential processes.
+\newblock In Ali~E. Abdallah, Cliff~B. Jones, and Jeff~W. Sanders, editors,
+  {\em 25 Years Communicating Sequential Processes}, volume 3525 of {\em
+  Lecture Notes in Computer Science}, pages 85--97. Springer, 2004.
+
+\bibitem{kahn-74}
+Gilles Kahn.
+\newblock The semantics of a simple language for parallel programming.
+\newblock In J.~L. Rosenfeld, editor, {\em Information Processing '74:
+  Proceedings of the IFIP Congress}, pages 471--475. North-Holland, New York,
+  NY, 1974.
+
+\bibitem{sakarovitch-03}
+Jaques Sakarovitch.
+\newblock {\em El\'ements de th\'eorie des automates}.
+\newblock Vuibert Informatique, 2003.
+
+\bibitem{tarski-55}
+Alfred Tarski.
+\newblock A lattice-theoretical fixpoint theorem and its applications.
+\newblock {\em Pacific J. Math.}, 5(2):285--309, 1955.
+
+\end{thebibliography}

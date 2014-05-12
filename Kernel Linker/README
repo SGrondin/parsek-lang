@@ -1,0 +1,10 @@
+Compilation and linking are parametrized by "environment". Environment
+is seen as "target architecture". In the first version of Kernel
+Language we only provide "FIFO environment" which defines binary input
+output channels (unbounded and bounded size FIFOs). 
+
+It is important to develop other generic "environments", such as "hash
+tables", "priority queues", etc. Also, it would be nice to develop a
+particular "environment" for a commercially available piece of
+hardware.
+

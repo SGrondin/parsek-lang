@@ -1,0 +1,184 @@
+   0  $accept : %entry% $end
+
+   1  kvalue_SC : kvalue SC
+
+   2  kvalue : LC list_of_label_inv RC
+   3         | QUOTE NAME kvalue
+   4         | QUOTE NAME
+
+   5  list_of_label_inv :
+   6                    | non_empty_list_of_label_inv
+
+   7  non_empty_list_of_label_inv : QUOTE NAME
+   8                              | QUOTE NAME kvalue
+   9                              | QUOTE NAME COMMA non_empty_list_of_label_inv
+  10                              | QUOTE NAME kvalue COMMA non_empty_list_of_label_inv
+
+  11  %entry% : '\001' kvalue_SC
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . kvalue_SC  (11)
+
+	LC  shift 3
+	QUOTE  shift 4
+	.  error
+
+	kvalue_SC  goto 5
+	kvalue  goto 6
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	kvalue : LC . list_of_label_inv RC  (2)
+	list_of_label_inv : .  (5)
+
+	QUOTE  shift 7
+	RC  reduce 5
+
+	list_of_label_inv  goto 8
+	non_empty_list_of_label_inv  goto 9
+
+
+state 4
+	kvalue : QUOTE . NAME kvalue  (3)
+	kvalue : QUOTE . NAME  (4)
+
+	NAME  shift 10
+	.  error
+
+
+state 5
+	%entry% : '\001' kvalue_SC .  (11)
+
+	.  reduce 11
+
+
+state 6
+	kvalue_SC : kvalue . SC  (1)
+
+	SC  shift 11
+	.  error
+
+
+state 7
+	non_empty_list_of_label_inv : QUOTE . NAME  (7)
+	non_empty_list_of_label_inv : QUOTE . NAME kvalue  (8)
+	non_empty_list_of_label_inv : QUOTE . NAME COMMA non_empty_list_of_label_inv  (9)
+	non_empty_list_of_label_inv : QUOTE . NAME kvalue COMMA non_empty_list_of_label_inv  (10)
+
+	NAME  shift 12
+	.  error
+
+
+state 8
+	kvalue : LC list_of_label_inv . RC  (2)
+
+	RC  shift 13
+	.  error
+
+
+state 9
+	list_of_label_inv : non_empty_list_of_label_inv .  (6)
+
+	.  reduce 6
+
+
+state 10
+	kvalue : QUOTE NAME . kvalue  (3)
+	kvalue : QUOTE NAME .  (4)
+
+	LC  shift 3
+	QUOTE  shift 4
+	RC  reduce 4
+	SC  reduce 4
+	COMMA  reduce 4
+
+	kvalue  goto 14
+
+
+state 11
+	kvalue_SC : kvalue SC .  (1)
+
+	.  reduce 1
+
+
+state 12
+	non_empty_list_of_label_inv : QUOTE NAME .  (7)
+	non_empty_list_of_label_inv : QUOTE NAME . kvalue  (8)
+	non_empty_list_of_label_inv : QUOTE NAME . COMMA non_empty_list_of_label_inv  (9)
+	non_empty_list_of_label_inv : QUOTE NAME . kvalue COMMA non_empty_list_of_label_inv  (10)
+
+	LC  shift 3
+	COMMA  shift 15
+	QUOTE  shift 4
+	RC  reduce 7
+
+	kvalue  goto 16
+
+
+state 13
+	kvalue : LC list_of_label_inv RC .  (2)
+
+	.  reduce 2
+
+
+state 14
+	kvalue : QUOTE NAME kvalue .  (3)
+
+	.  reduce 3
+
+
+state 15
+	non_empty_list_of_label_inv : QUOTE NAME COMMA . non_empty_list_of_label_inv  (9)
+
+	QUOTE  shift 7
+	.  error
+
+	non_empty_list_of_label_inv  goto 17
+
+
+state 16
+	non_empty_list_of_label_inv : QUOTE NAME kvalue .  (8)
+	non_empty_list_of_label_inv : QUOTE NAME kvalue . COMMA non_empty_list_of_label_inv  (10)
+
+	COMMA  shift 18
+	RC  reduce 8
+
+
+state 17
+	non_empty_list_of_label_inv : QUOTE NAME COMMA non_empty_list_of_label_inv .  (9)
+
+	.  reduce 9
+
+
+state 18
+	non_empty_list_of_label_inv : QUOTE NAME kvalue COMMA . non_empty_list_of_label_inv  (10)
+
+	QUOTE  shift 7
+	.  error
+
+	non_empty_list_of_label_inv  goto 19
+
+
+state 19
+	non_empty_list_of_label_inv : QUOTE NAME kvalue COMMA non_empty_list_of_label_inv .  (10)
+
+	.  reduce 10
+
+
+12 terminals, 6 nonterminals
+12 grammar rules, 20 states

@@ -1,0 +1,7 @@
+<type> a <is> ['a, 'b];
+
+(a -> a) switch = [ ('a -> 'b), ('b -> 'a) ];
+
+(a -> a) switch = [ ('b -> 'a), ('a -> 'b)  ];
+
+a main = 'a :: switch;

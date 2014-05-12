@@ -1,0 +1,158 @@
+\documentclass{book}
+
+\newcommand{\kernel}{{\it kernel}}
+\newcommand{\Kernel}{{\it Kernel}}
+\newcommand{\out}[1]{}
+
+\title{Kernel: an application of the formal language theory for system
+  development} \author{Wojciech Fraczak}
+
+
+\begin{document}
+\maketitle
+
+\chapter*{Introduction and motivation}
+
+\Kernel{} is a notation for describing computer systems. The notation
+is both a programing language which can be compiled into a highly
+optimized machine code, and a specification language used for modeling or
+verification purposes.
+
+The main features unique to \kernel{} notation are:
+\begin{itemize}
+\item the uniform syntax and semantics for printable (flat/non-functional)
+  values as rooted labeled trees; 
+\item its precise mathematical semantics in terms of relations over
+  printable values;
+\item the operational semantics of \kernel{} programs in terms of FIFO
+  systems, i.e., networks of finite automata connected by FIFO
+  channels;
+\item the main construct of \kernel{} notation is the composition of
+  relations and not a ``function call''; 
+\item interchangeable nature of behavioral and functional aspects of
+  system components in the sense that both are represented by state
+  machines.
+\end{itemize}
+
+The theory of formal languages and automata plays a very important
+role in the theoretical computer science of today. However in practice
+of software development, the results of the formal languages theory
+are too often limited to a the process of ``parsing'', a small part of
+compilation, interpretation, or verification of programs. \Kernel{}
+uses the theory of formal languages and automata beyond the process of
+parsing. In \kernel{}, the ``values'' are seen as rooted labeled trees
+encoded by strings, and the ``functions'' are relations represented by
+(networks of) transducers. All \kernel{} constructs correspond to some
+operations on relations such as composition, intersection, or
+projection. Such an approach allows us to use techniques and results
+of formal language theory for every stage of a system development.
+
+We tried to render the book self-contained. Thus, apart from the
+description of the \kernel{} notation, the document can be seen as an
+introduction to the theory of formal languages and automata.
+
+\chapter{Describing infinite objects with
+  finite alphabet\\[1cm]
+  \hfill \large 
+  Until what can we count on our fingers?}
+
+The theory of formal languages and automata can be seen as a
+mathematical vehicle for describing infinite objects. The question is
+how to describe sets (collections of elements such as numbers) in such
+a way that we could always answer the following three questions.
+\begin{description}
+\item \emph{Does a given element take part of the set?} (membership)
+\item \emph{Are two sets equal?} (equality)
+\item \emph{Is one set a subset of the other?} (inclusion)
+\end{description}
+
+We start by defining a way of writing down an ``element''. For
+example, in the usual decimal numerical system we use the ten digits,
+from zero (0) to nine (9), to describe natural numbers. The very first
+natural numbers have intuitive meanings for most of us, like zero (0),
+one (1), two (2), or three (3) --- we know how to count
+fingers. Bigger numbers have just names, such as ``ninety-two
+thousand, three hundred seventy-one'' (92371). Even bigger numbers are
+for us just sequences of digits, e.g.,
+``$545276150002983765142387213$''.
+
+It seems acceptable to consider natural numbers just as finite
+sequences of digits. But natural numbers is more than sequences of
+digits. For example, even if I do not know how to name
+``$5452761500029837651423887213$'', I know that it is ``bigger'' than
+``$12300983640954$'', and I even know how to ``add'' or ``multiply'' the two
+numbers by producing a representation of the result.  The
+representation of numbers and the transformations defined of the
+representations of numbers are the only things I really need.
+
+Let us try to ``redo'' the job of defining natural numbers, but
+assuming that we have ``two fingers''. 
+We start with defining our digits, or rather ``\emph{bi}gits'':
+\begin{verbatim}
+ <type> bigit <is> ['0, '1];
+\end{verbatim}
+The above statment intruduced a new name ``\verb+bigit+' which
+denotes the set (type) of two distinct elements. These
+elements are just tokens which differ by their \emph{labels}; labels
+are just names starting with a quote. An element of type
+\verb+bigit+ can be either \verb+'0+, or \verb+'1+.
+
+We may define a bigit number as follows:
+\begin{verbatim}
+<type> binum <is> [ '0 binum, '1 binum, '_ ];
+\end{verbatim}
+The above definition is recursive. It says that an element of type
+\verb+binum+ is either \verb+'0+ or \verb+'1+ followed by another
+\verb+binum+ element, or just token \verb+'_+. Let's start writing
+some numebrs in out notation:
+\begin{verbatim}
+nat zero  =     '0'_;
+nat one   =     '1'_;
+nat two   =   '1'0'_;
+nat three = '  1'1'_;
+nat four  = '1'0'0'_; 
+-- etc...
+\end{verbatim}
+Is the choice of the correspondence between ``usual'' natural numbers
+and \emph{binum}s of any importance here? How do I generate the
+encoding for the next number? The answer is, as soon as you give
+yourself the coding for ``zero'' and the way of generating ``the next
+number'', you are set. 
+
+For example, \verb+'_+,
+\verb+'1'_+, \verb+'0'1'0'_+, etc., are elements of type \verb+binum+.
+
+
+
+A type defines a set of \emph{values}. Type \verb+digit+ has ten values and 
+type \verb+string_of_digits+ has infinite number of values.  
+
+
+
+Usually we give ourselves a finite set of atomic symbols, here ten
+digits, and a method (procedure) to build description of objects (here
+natural numbers) from those symbols.
+
+
+Let's start with a small example. 
+
+
+Consider the set of all natural
+numbers, i.e., one, two, three, \ldots and so on. Firstly, we need a
+notation for describing the numbers. Probably the simplest and the
+most natural encoding of natural numbers is, so called, ``unary
+numerical system''. In this notation, number one is represented by one
+vertical line \verb+|+, two by two vertical lines \verb+||+, three by
+\verb+|||+, and so on. Thus, any sequence of vertical lines
+corresponds to a natural number.
+
+
+
+\section{FIFO system for Stack}
+
+see Examples/stack.k,pipe.k
+
+\section{How to encode trees in order to filter them with FIFOs?}
+
+
+\end{document}

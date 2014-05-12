@@ -1,0 +1,9 @@
+<code> c <is> ['a,'b','c];
+
+<code> c2 <is> ['a,'b];
+
+(c -> c2) f1 = ('a -> 'a);
+
+(c -> c) f <is> f1 | ('a -> 'c);
+
+main <is> 'a | f;

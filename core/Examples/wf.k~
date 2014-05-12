@@ -1,0 +1,9 @@
+<code> bnat <is> ['_, '1 bnat, '0 bnat ];
+
+bnat 8 <is> '1'0'0'0'_;
+
+(bnat -> bnat) normalize <is> [
+      ('0 ... -> $.0),
+      (... -> $) ];
+
+bnat main <is> '0'0'1'1'0'_ | normilize;

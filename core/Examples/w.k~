@@ -1,0 +1,9 @@
+<code> bool <is> ['true, 'false];
+
+(bool -> bool) negacja <is> [ 
+   ('true -> 'false),
+   ('false -> 'true)];
+
+bool main = 'true | nagacja ;
+
+      

@@ -1,0 +1,90 @@
+-- Decimal encoding of natural numbers plus the operations.
+-- requires "digits.k" and "bool.k"
+
+<type> nat <is> ['_, '0 nat, '1 nat, '2 nat,'3 nat,'4 nat, 
+       	    	      '5 nat, '6 nat, '7 nat, '8 nat, '9 nat ];
+
+nat 123 = '1'2'3'_;
+
+(nat -> bool) zero? = remove_leading_zeros ::
+     [('_ -> 'true), (... -> 'false)];
+
+(nat -> nat) remove_leading_zeros = 
+      [ 
+        ('0 ... -> $.0 :: remove_leading_zeros),
+	(... -> $) 
+      ];
+
+(nat -> digit) first_digit =[
+     ('0 ..., '_ -> '0),
+     ('1 ... -> '1),
+     ('2 ... -> '2),
+     ('3 ... -> '3),
+     ('4 ... -> '4),
+     ('5 ... -> '5),
+     ('6 ... -> '6),
+     ('7 ... -> '7),
+     ('8 ... -> '8),
+     ('9 ... -> '9)];
+
+(nat -> nat) rm_first_digit =  [ 
+     ('_ -> '_),
+     (... -> [$.0,$.1,$.2,$.3,$.4,$.5,$.6,$.7,$.8,$.9])
+];
+
+(nat -> {'n nat,'d digit}) decompose =
+     (... -> {'n $:: rm_first_digit, 'd $::first_digit});
+
+({'n nat, 'd digit} -> nat) prepend_digit = [
+     ({'d '0,...} -> '0 $.n),
+     ({'d '1,...} -> '1 $.n),
+     ({'d '2,...} -> '2 $.n),
+     ({'d '3,...} -> '3 $.n),
+     ({'d '4,...} -> '4 $.n),
+     ({'d '5,...} -> '5 $.n),
+     ({'d '6,...} -> '6 $.n),
+     ({'d '7,...} -> '7 $.n),
+     ({'d '8,...} -> '8 $.n),
+     ({'d '9,...} -> '9 $.n)];
+
+({'n nat, 'd digit} -> nat) append_digit = [ 
+        ({'n '_, ...} -> $) :: prepend_digit,
+	(... ->  {'d $.n :: first_digit, 
+	     	  'n {'n $.n :: rm_first_digit, 'd $.d} :: append_digit
+		 }) :: prepend_digit
+	];		 
+
+(nat -> nat) reverse = 
+     [ 
+        ('_ -> '_),
+	decompose 
+	:: (... -> {'n $.n :: reverse, 'd $.d}) 
+	:: append_digit
+     ];
+
+({'x nat, 'y nat} -> nat) x++y = (... ->
+     {'x $.x :: reverse, 'y $.y :: reverse, 'c'0})
+     :: x+y+c :: reverse;
+      
+({'x nat, 'y nat, 'c digit} -> nat) x+y+c =
+     [
+      ({'x'_,'y'_,...} -> {'n '_,'d $.c}) :: prepend_digit,
+      (... ->
+        {'x $.x :: decompose, 
+	 'y $.y :: decompose,
+	 'x+y+c {'x @x.d, 'y @y.d, 'z $.c} :: x+y+z,
+	 'r {'n {'x @x.n, 'y @y.n, 'c @x+y+c.c} :: x+y+c,
+	     'd @x+y+c.d} :: prepend_digit}).r
+];
+ 
+#nat main <is> {'x '9'9'9'9'9'9'9'9'9'9'_, 'y'5'2'1'_} :: x++y;
+
+########
+#({'x nat, 'y nat} -> nat) - =
+#main = {'x '1,'y '1} :: x-LE-y;
+#{'x nat, 'y nat} main = {'x '8'2'3'_, 'y '8'2'3'1'_} :: swap :: equal_len;
+#main = {'x '8'2'3'_, 'y '8'2'3'1'_} :: x_le_y;
+
+#bool main = '1'0'_ :: zero?; 
+#nat main = {'x '9'9'9'9'9'9'9'9'9'9'_, 'y '9'_} :: +;
+

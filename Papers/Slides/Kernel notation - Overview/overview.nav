@@ -1,0 +1,69 @@
+\beamer@endinputifotherversion {3.06pt}
+\headcommand {\slideentry {0}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\sectionentry {1}{Introduction}{2}{Introduction}{0}}
+\headcommand {\beamer@sectionpages {1}{1}}
+\headcommand {\beamer@subsectionpages {1}{1}}
+\headcommand {\beamer@subsectionpages {2}{1}}
+\headcommand {\slideentry {1}{1}{1}{2/4}{Introduction}{0}}
+\headcommand {\beamer@framepages {2}{4}}
+\headcommand {\beamer@subsectionpages {2}{4}}
+\headcommand {\slideentry {1}{2}{1}{5/8}{History and motivation}{0}}
+\headcommand {\beamer@framepages {5}{8}}
+\headcommand {\beamer@subsectionpages {5}{8}}
+\headcommand {\slideentry {1}{3}{1}{9/10}{What Kernel is for...}{0}}
+\headcommand {\beamer@framepages {9}{10}}
+\headcommand {\sectionentry {2}{Overview of the approach}{11}{Overview of the approach}{0}}
+\headcommand {\beamer@sectionpages {2}{10}}
+\headcommand {\beamer@subsectionpages {9}{10}}
+\headcommand {\slideentry {2}{0}{2}{11/11}{}{0}}
+\headcommand {\beamer@framepages {11}{11}}
+\headcommand {\sectionentry {3}{Outline of the talk}{12}{Outline of the talk}{0}}
+\headcommand {\beamer@sectionpages {11}{11}}
+\headcommand {\beamer@subsectionpages {11}{11}}
+\headcommand {\slideentry {3}{0}{3}{12/12}{}{0}}
+\headcommand {\beamer@framepages {12}{12}}
+\headcommand {\sectionentry {4}{Introduction to Kernel notation}{13}{Introduction to Kernel notation}{0}}
+\headcommand {\beamer@sectionpages {12}{12}}
+\headcommand {\beamer@subsectionpages {12}{12}}
+\headcommand {\beamer@subsectionpages {13}{12}}
+\headcommand {\slideentry {4}{1}{1}{13/16}{Values as rooted trees}{0}}
+\headcommand {\beamer@framepages {13}{16}}
+\headcommand {\beamer@subsectionpages {13}{16}}
+\headcommand {\slideentry {4}{2}{1}{17/17}{Relations}{0}}
+\headcommand {\beamer@framepages {17}{17}}
+\headcommand {\beamer@subsectionpages {17}{17}}
+\headcommand {\slideentry {4}{3}{1}{18/26}{Syntax}{0}}
+\headcommand {\beamer@framepages {18}{26}}
+\headcommand {\sectionentry {5}{Compilation}{27}{Compilation}{0}}
+\headcommand {\beamer@sectionpages {13}{26}}
+\headcommand {\beamer@subsectionpages {18}{26}}
+\headcommand {\beamer@subsectionpages {27}{26}}
+\headcommand {\slideentry {5}{1}{1}{27/31}{Building state machines}{0}}
+\headcommand {\beamer@framepages {27}{31}}
+\headcommand {\slideentry {5}{1}{2}{32/34}{Building state machines}{0}}
+\headcommand {\beamer@framepages {32}{34}}
+\headcommand {\beamer@subsectionpages {27}{34}}
+\headcommand {\slideentry {5}{2}{1}{35/39}{FIFO system}{0}}
+\headcommand {\beamer@framepages {35}{39}}
+\headcommand {\beamer@subsectionpages {35}{39}}
+\headcommand {\slideentry {5}{3}{1}{40/43}{Connecting state machines into FIFO system}{0}}
+\headcommand {\beamer@framepages {40}{43}}
+\headcommand {\sectionentry {6}{Verification}{44}{Verification}{0}}
+\headcommand {\beamer@sectionpages {27}{43}}
+\headcommand {\beamer@subsectionpages {40}{43}}
+\headcommand {\beamer@subsectionpages {44}{43}}
+\headcommand {\slideentry {6}{1}{1}{44/48}{Over-approximation}{0}}
+\headcommand {\beamer@framepages {44}{48}}
+\headcommand {\beamer@subsectionpages {44}{48}}
+\headcommand {\slideentry {6}{2}{1}{49/54}{Over-approximation techniques}{0}}
+\headcommand {\beamer@framepages {49}{54}}
+\headcommand {\slideentry {6}{2}{2}{55/58}{Over-approximation techniques}{0}}
+\headcommand {\beamer@framepages {55}{58}}
+\headcommand {\slideentry {6}{2}{3}{59/60}{Over-approximation techniques}{0}}
+\headcommand {\beamer@framepages {59}{60}}
+\headcommand {\beamer@partpages {1}{61}}
+\headcommand {\beamer@subsectionpages {49}{61}}
+\headcommand {\beamer@sectionpages {44}{61}}
+\headcommand {\beamer@documentpages {61}}
+\headcommand {\def \inserttotalframenumber {17}}

@@ -1,0 +1,34 @@
+These are the sources of the Kernel/CORE interpreter as described here:
+
+      http://fraczak.dyndns.org/KernelCORE/
+
+written in Ocaml. To compile you will need "ocaml" and "make"
+installed. Do:
+
+   > make 
+
+It will create two executable files:
+
+ 1. k-native    -- smaller faster
+
+ 2. k-bytecode  -- slower but with debug infos 
+
+To test the program do:
+
+   > echo "main = {};" | ./k-native
+
+It should print:
+
+   --- EVALUATION (by interpretation) of main(): 
+   {}
+
+To run an example from the "Examples" directory, eg., "bool.k", do:
+
+   > cd ./Examples
+
+first, and then:
+
+   > ../k-native < bool.k
+
+since some examples are using other files and it is assumend that they
+are located in the working directory.

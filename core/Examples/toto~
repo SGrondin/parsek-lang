@@ -1,0 +1,36 @@
+
+--- TYPE DEFS  
+ <type> ~38 <is> {'0 nat, 'titi nat};
+ <type> pair <is> {'x nat, 'y nat};
+ <type> ~0 <is> [];
+ <type> ~1 <is> {};
+ <type> nat <is> ['0 ~1, '1 nat];
+
+--- TYPE ALIASES
+
+--- REL DEFS 
+ (nat -> nat) find <is> [( ... -> [{'x $, 'y get_nat} | == | '0 {}]), ($x ... -> [get_nat | ( ... -> '1 [$x | find])])];
+ (~1 -> pair) get_bla <is> {'x get_nat, 'y [get_nat | ( ... -> get_nat) | ( ... -> get_nat)]};
+ (pair -> ~1) == <is> [( {'x '0 {}, 'y '0 {}} -> {}), [( ... -> {'x $.x.1, 'y $.y.1}) | ==]];
+ (~1 -> pair) 0_and_1 <is> {'x 0, 'y 1};
+ (~1 -> nat) toto <is> <input>;
+ (nat -> ~1) put_nat <is> <output>;
+ (~1 -> nat) 0 <is> '0 {};
+ (~1 -> nat) 1 <is> '1 '0 {};
+ (~1 -> pair) get_pair <is> {'x get_nat, 'y get_nat<concat> toto};
+ (~1 -> nat) main <is> [{'0 get_bla.y, 'titi 0}.0, [skip_a_nat | toto]];
+ (pair -> nat) y-x <is> [swap | x-y];
+ (~1 -> nat) get_nat <is> toto;
+ (nat -> nat) ++ <is> [( '1 '1 '1 '1 ... -> $), ( '0 {}, '1 '0 {}, '1 '1 '0 {}, '1 '1 '1 '0 {} -> '1 $)];
+ (nat -> pair) double <is> ($arg nat -> {'x $arg, 'y $arg});
+ (~1 -> pair) 1_10 <is> {'y 10, 'x '1 '0 {}};
+ (~1 -> ~1) skip_a_nat <is> [get_nat | ( nat -> {})];
+ (~1 -> nat) 10 <is> '1 '1 '1 '1 '1 '1 '1 '1 '1 '1 '0 {};
+ (pair -> nat) f1 <is> ( {'x nat, 'y '0 {}} -> $.x);
+ (pair -> nat) f2 <is> [( {'x '1 nat, ...} -> {'x $.x.1, 'y $.y.1}) | x-y];
+ (pair -> nat) x-y <is> [f1, f2];
+ (pair -> pair) swap <is> ( ... -> {'x $.y, 'y $.x});
+
+--- EVALUATION (by interpretation) of main(): 
+[]
+

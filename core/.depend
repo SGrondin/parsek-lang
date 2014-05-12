@@ -1,0 +1,13 @@
+exp_parser.cmi : prints.cmx
+eval.cmo : typing.cmx prints.cmx exp_parser.cmi
+eval.cmx : typing.cmx prints.cmx exp_parser.cmi
+main.cmo : prints.cmx
+main.cmx : prints.cmx
+old_eval.cmo : typing.cmx prints.cmx exp_parser.cmi
+old_eval.cmx : typing.cmx prints.cmx exp_parser.cmi
+prints.cmo :
+prints.cmx :
+typegraph.cmo : prints.cmx
+typegraph.cmx : prints.cmx
+typing.cmo : typegraph.cmx prints.cmx
+typing.cmx : typegraph.cmx prints.cmx
